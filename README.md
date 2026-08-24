@@ -35,6 +35,20 @@ Purpose -> Prime -> Learn -> Connect -> Retrieve -> Apply -> Explain -> Feedback
 See [Android build instructions](#android), [iOS instructions](ios/README.md), and
 [Windows instructions](windows/README.md).
 
+## Install the prototype
+
+Verified prototype packages are published on the
+[GitHub Releases page](https://github.com/rock0ne/cyber-learning-os/releases).
+
+- **Android:** download the `Cyber-Learning-OS-0.1.0-debug.apk` file and install it
+  with `adb install -r <path-to-apk>`. This prototype APK uses Android's debug
+  signing key and must not be mistaken for a production-store release.
+- **Windows:** download and extract the `win-x64.zip` archive, then run
+  `CyberLearningOS.Windows.exe`. The prototype is not yet code-signed, so Windows
+  may show a SmartScreen warning.
+- **iOS:** the source and verified simulator build are included, but installing on
+  a physical iPhone requires Xcode and signing with your Apple developer identity.
+
 ## Android
 
 Build the debug APK:
