@@ -15,10 +15,24 @@ android {
         versionName = "0.2.0"
     }
 
+    val releaseKeystorePath = System.getenv("CYBER_LEARNING_OS_KEYSTORE_PATH")
+    signingConfigs {
+        if (!releaseKeystorePath.isNullOrBlank()) {
+            create("release") {
+                storeFile = file(releaseKeystorePath)
+                storePassword = System.getenv("CYBER_LEARNING_OS_STORE_PASSWORD")
+                keyAlias = "cyber-learning-os"
+                keyPassword = System.getenv("CYBER_LEARNING_OS_KEY_PASSWORD")
+                storeType = "PKCS12"
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             isDebuggable = false
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 

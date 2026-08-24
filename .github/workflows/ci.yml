@@ -25,12 +25,30 @@ jobs:
           java-version: "17"
           cache: gradle
       - uses: android-actions/setup-android@v3
+      - name: Restore private Android signing key
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          KEYSTORE_B64: ${{ secrets.CYBER_LEARNING_OS_KEYSTORE_B64 }}
+        run: echo "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/cyber-learning-os-release.p12"
       - name: Test, lint and assemble
         run: ./gradlew test lint assembleDebug --no-daemon
+      - name: Assemble stable signed release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          CYBER_LEARNING_OS_KEYSTORE_PATH: ${{ runner.temp }}/cyber-learning-os-release.p12
+          CYBER_LEARNING_OS_STORE_PASSWORD: ${{ secrets.CYBER_LEARNING_OS_STORE_PASSWORD }}
+          CYBER_LEARNING_OS_KEY_PASSWORD: ${{ secrets.CYBER_LEARNING_OS_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: Cyber-Learning-OS-Android-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          name: Cyber-Learning-OS-Android-release
+          path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
   ios:
