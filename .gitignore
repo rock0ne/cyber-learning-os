@@ -1,0 +1,13 @@
+.gradle/
+.idea/
+**/build/
+**/bin/
+**/obj/
+**/.swiftpm/
+**/.build/
+*.user
+*.suo
+*.keystore
+keystore.properties
+windows/artifacts/
+local.properties

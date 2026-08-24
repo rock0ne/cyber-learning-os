@@ -1,0 +1,28 @@
+<Window x:Class="CyberLearningOS.Windows.NewTopicWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Purpose gate" Width="560" Height="520" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" Background="{StaticResource WindowBrush}"
+        Foreground="{StaticResource PrimaryBrush}">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+            <RowDefinition Height="*" /><RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Start with purpose, not content" FontSize="23" FontWeight="SemiBold" Margin="0,0,0,18" />
+        <TextBlock Grid.Row="1" Text="Topic" Foreground="{StaticResource SecondaryBrush}" />
+        <TextBox Grid.Row="2" x:Name="TopicBox" MinHeight="45" Margin="0,5,0,12" AcceptsReturn="False" />
+        <TextBlock Grid.Row="3" Text="Why am I learning this?" Foreground="{StaticResource SecondaryBrush}" />
+        <TextBox Grid.Row="4" x:Name="PurposeBox" MinHeight="85" Margin="0,5,0,12" />
+        <StackPanel Grid.Row="5">
+            <TextBlock Text="Afterward, what should I be able to do?" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBox x:Name="CapabilityBox" MinHeight="85" Margin="0,5,0,0" />
+            <TextBlock x:Name="ErrorText" Foreground="#FF8A9A" Margin="0,8,0,0" />
+        </StackPanel>
+        <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Cancel" Click="Cancel_Click" />
+            <Button Content="Start mission" Click="Start_Click" Background="#2B8E7A" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CyberLearningOS.Windows/CyberLearningOS.Windows.csproj" />
+  <Project Path="CyberLearningOS.Windows.Tests/CyberLearningOS.Windows.Tests.csproj" />
+</Solution>
