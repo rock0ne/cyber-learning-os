@@ -11,3 +11,5 @@
 keystore.properties
 windows/artifacts/
 local.properties
+/dist/
+/tmp/
