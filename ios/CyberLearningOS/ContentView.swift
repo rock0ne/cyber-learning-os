@@ -5,6 +5,7 @@ struct ContentView: View {
     @State private var creating = false
     @State private var showingGuide = false
     @State private var blocked = false
+    @State private var activePage = StepPage.understand
 
     private let accent = Color(red: 0.24, green: 0.90, blue: 0.76)
 
@@ -88,27 +89,53 @@ struct ContentView: View {
 
     private func stepEditor(_ topic: LearningTopic) -> some View {
         let guide = topic.currentGuide
+        let lesson = TeachingContent.forStep(guide.number)
         return VStack(alignment: .leading, spacing: 12) {
             Text("STEP \(guide.number) OF 14 • \(guide.phase.uppercased())")
                 .font(.caption.bold()).foregroundStyle(accent)
             Text(guide.title).font(.title2.bold())
-            guideBlock("WHAT TO DO", guide.what)
-            guideBlock("WHY IT MATTERS", guide.why)
-            guideBlock("HOW TO ACHIEVE IT", guide.how)
-            guideBlock("CYBERSECURITY EXAMPLE", guide.cyberExample)
-            Text("YOUR EVIDENCE").font(.caption.bold()).foregroundStyle(accent)
-            Text(guide.evidencePrompt).font(.subheadline).foregroundStyle(.secondary)
-            TextEditor(text: stepBinding()).frame(minHeight: 150).padding(6)
-                .background(.black.opacity(0.22)).clipShape(RoundedRectangle(cornerRadius: 9))
-            guideBlock("YOU ARE READY TO CONTINUE WHEN", guide.doneWhen)
-            HStack {
-                Button("Save evidence") { store.save() }.buttonStyle(.bordered)
-                Button(guide.number == 14 ? "Complete 14-step cycle" : "Complete step \(guide.number)") {
-                    store.save()
-                    if !store.advance() { blocked = true }
-                }.buttonStyle(.borderedProminent).tint(accent).foregroundStyle(.black)
+            Picker("Lesson page", selection: $activePage) {
+                ForEach(StepPage.allCases) { Text($0.rawValue).tag($0) }
+            }.pickerStyle(.segmented)
+            switch activePage {
+            case .understand:
+                guideBlock("WHAT TO DO", guide.what)
+                guideBlock("WHY IT MATTERS", guide.why)
+                guideBlock(lesson.technique.uppercased(), lesson.explanation)
+                guideBlock("COMMON TRAP", lesson.avoid)
+                guideBlock("TRANSCRIPT ANCHOR", lesson.transcriptAnchor)
+            case .technique:
+                guideBlock("HOW TO ACHIEVE IT", guide.how)
+                diagram(lesson)
+                guideBlock("CYBERSECURITY EXAMPLE", guide.cyberExample)
+                guideBlock("TRY IT NOW", lesson.guidedPractice)
+            case .practice:
+                Text("YOUR EVIDENCE").font(.caption.bold()).foregroundStyle(accent)
+                Text(guide.evidencePrompt).font(.subheadline).foregroundStyle(.secondary)
+                TextEditor(text: stepBinding()).frame(minHeight: 150).padding(6)
+                    .background(.black.opacity(0.22)).clipShape(RoundedRectangle(cornerRadius: 9))
+                guideBlock("YOU ARE READY TO CONTINUE WHEN", guide.doneWhen)
+                HStack {
+                    Button("Save evidence") { store.save() }.buttonStyle(.bordered)
+                    Button(guide.number == 14 ? "Complete cycle" : "Complete step \(guide.number)") {
+                        store.save()
+                        if store.advance() { activePage = .understand } else { blocked = true }
+                    }.buttonStyle(.borderedProminent).tint(accent).foregroundStyle(.black)
+                }
             }
         }
+    }
+
+    private func diagram(_ lesson: StepLesson) -> some View {
+        VStack(spacing: 4) {
+            Text("VISUAL MODEL • \(lesson.technique.uppercased())")
+                .font(.caption.bold()).foregroundStyle(accent).frame(maxWidth: .infinity, alignment: .leading)
+            ForEach(Array(lesson.diagram.enumerated()), id: \.offset) { index, node in
+                Text(node).font(.subheadline.bold()).frame(maxWidth: .infinity).padding(10)
+                    .background(Color.teal.opacity(0.26)).clipShape(RoundedRectangle(cornerRadius: 8))
+                if index < lesson.diagram.count - 1 { Image(systemName: "arrow.down").foregroundStyle(accent) }
+            }
+        }.padding(12).background(.white.opacity(0.045)).clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     private func reviewEditor(_ topic: LearningTopic) -> some View {
@@ -169,16 +196,71 @@ private struct RoadmapView: View {
     var body: some View {
         NavigationStack {
             List(LearningGuide.steps) { step in
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("STEP \(step.number) • \(step.phase.uppercased())").font(.caption.bold()).foregroundStyle(.teal)
-                    Text(step.title).font(.headline)
-                    Text(step.what).foregroundStyle(.secondary)
-                }.padding(.vertical, 5)
+                NavigationLink {
+                    ReferenceLessonView(step: step)
+                } label: {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("STEP \(step.number) • \(step.phase.uppercased())").font(.caption.bold()).foregroundStyle(.teal)
+                        Text(step.title).font(.headline)
+                        Text(step.what).foregroundStyle(.secondary)
+                    }.padding(.vertical, 5)
+                }
             }
             .navigationTitle("The 14-step roadmap")
             .toolbar { Button("Close") { dismiss() } }
         }
     }
+}
+
+private struct ReferenceLessonView: View {
+    let step: LearningStepGuide
+    @State private var page = StepPage.understand
+    private let accent = Color(red: 0.24, green: 0.90, blue: 0.76)
+
+    var body: some View {
+        let lesson = TeachingContent.forStep(step.number)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("STEP \(step.number) OF 14 • \(step.phase.uppercased())").font(.caption.bold()).foregroundStyle(accent)
+                Text(step.title).font(.title.bold())
+                Picker("Lesson page", selection: $page) {
+                    ForEach(StepPage.allCases) { Text($0.rawValue).tag($0) }
+                }.pickerStyle(.segmented)
+                if page == .understand {
+                    block("WHAT TO DO", step.what); block("WHY IT MATTERS", step.why)
+                    block(lesson.technique.uppercased(), lesson.explanation); block("COMMON TRAP", lesson.avoid)
+                    block("TRANSCRIPT ANCHOR", lesson.transcriptAnchor)
+                } else if page == .technique {
+                    block("HOW TO ACHIEVE IT", step.how)
+                    VStack(spacing: 4) {
+                        ForEach(Array(lesson.diagram.enumerated()), id: \.offset) { index, node in
+                            Text(node).font(.subheadline.bold()).frame(maxWidth: .infinity).padding(10)
+                                .background(Color.teal.opacity(0.24)).clipShape(RoundedRectangle(cornerRadius: 8))
+                            if index < lesson.diagram.count - 1 { Image(systemName: "arrow.down").foregroundStyle(accent) }
+                        }
+                    }
+                    block("CYBERSECURITY EXAMPLE", step.cyberExample); block("TRY IT NOW", lesson.guidedPractice)
+                } else {
+                    block("PRACTISE & PROVE", step.evidencePrompt); block("READY TO CONTINUE WHEN", step.doneWhen)
+                    Text("Start or select a learning topic on the home page to record evidence.").foregroundStyle(.secondary)
+                }
+            }.padding()
+        }.navigationTitle("How to learn")
+    }
+
+    private func block(_ title: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title).font(.caption.bold()).foregroundStyle(accent); Text(value)
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(12).background(.white.opacity(0.05))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+private enum StepPage: String, CaseIterable, Identifiable {
+    case understand = "Understand"
+    case technique = "How to do it"
+    case practice = "Practise & prove"
+    var id: String { rawValue }
 }
 
 private struct NewTopicView: View {

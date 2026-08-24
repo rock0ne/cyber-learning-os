@@ -9,9 +9,14 @@ import org.junit.Test
 class LearningPolicyTest {
     @Test fun guide_contains_all_fourteen_named_and_actionable_steps() {
         assertEquals(14, LearningGuide.steps.size)
-        assertEquals("Define the learning outcome", LearningGuide.steps.first().title)
-        assertEquals("Reproduce real conditions", LearningGuide.steps.last().title)
+        assertEquals("Measure outcomes, not speed", LearningGuide.steps.first().title)
+        assertEquals("Match the conditions that matter", LearningGuide.steps.last().title)
         assertTrue(LearningGuide.steps.all { it.what.isNotBlank() && it.how.size >= 3 && it.evidencePrompt.isNotBlank() })
+        assertEquals(14, TeachingContent.lessons.size)
+        assertTrue(TeachingContent.lessons.all {
+            it.explanation.isNotBlank() && it.avoid.isNotBlank() && it.walkthrough.size >= 4 &&
+                it.diagram.size >= 4 && it.guidedPractice.isNotBlank() && it.transcriptAnchor.isNotBlank()
+        })
     }
 
     @Test fun step_cannot_advance_without_learner_evidence() {

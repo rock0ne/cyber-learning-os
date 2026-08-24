@@ -48,42 +48,73 @@
                         <TextBlock x:Name="StepMetaText" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="13" />
                         <TextBlock x:Name="StepTitleText" FontSize="26" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,5,0,14" />
 
-                        <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,0,0,10">
-                            <StackPanel><TextBlock Text="WHAT TO DO" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
-                                <TextBlock x:Name="WhatText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="22" /></StackPanel>
-                        </Border>
-                        <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,0,0,10">
-                            <StackPanel><TextBlock Text="WHY IT MATTERS" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
-                                <TextBlock x:Name="WhyText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="22" /></StackPanel>
-                        </Border>
-                        <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,0,0,10">
-                            <StackPanel><TextBlock Text="HOW TO ACHIEVE IT" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
-                                <TextBlock x:Name="HowText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="23" /></StackPanel>
-                        </Border>
-                        <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,0,0,14">
-                            <StackPanel><TextBlock Text="CYBERSECURITY EXAMPLE" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
-                                <TextBlock x:Name="ExampleText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="22" /></StackPanel>
-                        </Border>
+                        <UniformGrid x:Name="PageTabs" Columns="3" Margin="0,0,0,14">
+                            <Button Content="Understand" Tag="Understand" Click="Page_Click" />
+                            <Button Content="How to do it" Tag="Technique" Click="Page_Click" />
+                            <Button Content="Practise &amp; prove" Tag="Practice" Click="Page_Click" />
+                        </UniformGrid>
 
-                        <TextBlock Text="YOUR EVIDENCE" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
-                        <TextBlock x:Name="EvidencePromptText" Foreground="{StaticResource SecondaryBrush}" TextWrapping="Wrap" Margin="0,5,0,7" />
-                        <TextBox x:Name="EvidenceField" MinHeight="150" />
-                        <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,12,0,0">
-                            <StackPanel><TextBlock Text="YOU ARE READY TO CONTINUE WHEN" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
-                                <TextBlock x:Name="DoneText" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel>
-                        </Border>
-                        <StackPanel x:Name="EditorActions" Orientation="Horizontal" Margin="0,16,0,0">
-                            <Button Content="Save evidence" Click="Save_Click" />
-                            <Button x:Name="AdvanceButton" Content="Complete step" Click="Advance_Click" Background="#2B8E7A" />
+                        <StackPanel x:Name="UnderstandPanel">
+                            <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,0,0,10">
+                                <StackPanel><TextBlock Text="WHAT TO DO" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
+                                    <TextBlock x:Name="WhatText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="22" /></StackPanel>
+                            </Border>
+                            <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,0,0,10">
+                                <StackPanel><TextBlock Text="WHY IT MATTERS" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
+                                    <TextBlock x:Name="WhyText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="22" /></StackPanel>
+                            </Border>
+                            <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,0,0,10">
+                                <StackPanel><TextBlock x:Name="TechniqueNameText" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
+                                    <TextBlock x:Name="ExplanationText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="22" /></StackPanel>
+                            </Border>
+                            <Border Background="#2B2024" CornerRadius="9" Padding="14" Margin="0,0,0,10">
+                                <StackPanel><TextBlock Text="COMMON TRAP" Foreground="#FFB5A7" FontWeight="SemiBold" FontSize="12" />
+                                    <TextBlock x:Name="AvoidText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="22" /></StackPanel>
+                            </Border>
+                            <Border Background="#17283D" CornerRadius="9" Padding="14">
+                                <StackPanel><TextBlock Text="TRANSCRIPT ANCHOR" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
+                                    <TextBlock x:Name="SourceAnchorText" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel>
+                            </Border>
                         </StackPanel>
-                        <StackPanel x:Name="RatingPanel" Margin="0,14,0,0">
-                            <TextBlock Text="After unaided retrieval, how well could you reconstruct and use it?" Foreground="{StaticResource SecondaryBrush}" Margin="0,0,0,8" />
-                            <WrapPanel>
-                                <Button Content="Again" Tag="Again" Click="Rate_Click" />
-                                <Button Content="Hard" Tag="Hard" Click="Rate_Click" />
-                                <Button Content="Good" Tag="Good" Click="Rate_Click" />
-                                <Button Content="Strong" Tag="Strong" Click="Rate_Click" />
-                            </WrapPanel>
+
+                        <StackPanel x:Name="TechniquePanel" Visibility="Collapsed">
+                            <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,0,0,10">
+                                <StackPanel><TextBlock Text="HOW TO ACHIEVE IT" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
+                                    <TextBlock x:Name="HowText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="23" /></StackPanel>
+                            </Border>
+                            <TextBlock x:Name="DiagramTitleText" Text="VISUAL MODEL" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" Margin="0,3,0,7" />
+                            <StackPanel x:Name="DiagramPanel" Margin="0,0,0,10" />
+                            <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,0,0,10">
+                                <StackPanel><TextBlock Text="CYBERSECURITY EXAMPLE" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
+                                    <TextBlock x:Name="ExampleText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="22" /></StackPanel>
+                            </Border>
+                            <Border Background="#17283D" CornerRadius="9" Padding="14">
+                                <StackPanel><TextBlock Text="TRY IT NOW" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
+                                    <TextBlock x:Name="GuidedPracticeText" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="22" /></StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel x:Name="PracticePanel" Visibility="Collapsed">
+                            <TextBlock Text="YOUR EVIDENCE" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
+                            <TextBlock x:Name="EvidencePromptText" Foreground="{StaticResource SecondaryBrush}" TextWrapping="Wrap" Margin="0,5,0,7" />
+                            <TextBox x:Name="EvidenceField" MinHeight="150" />
+                            <Border Background="#17283D" CornerRadius="9" Padding="14" Margin="0,12,0,0">
+                                <StackPanel><TextBlock Text="YOU ARE READY TO CONTINUE WHEN" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="12" />
+                                    <TextBlock x:Name="DoneText" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel>
+                            </Border>
+                            <StackPanel x:Name="EditorActions" Orientation="Horizontal" Margin="0,16,0,0">
+                                <Button Content="Save evidence" Click="Save_Click" />
+                                <Button x:Name="AdvanceButton" Content="Complete step" Click="Advance_Click" Background="#2B8E7A" />
+                            </StackPanel>
+                            <StackPanel x:Name="RatingPanel" Margin="0,14,0,0">
+                                <TextBlock Text="After unaided retrieval, how well could you reconstruct and use it?" Foreground="{StaticResource SecondaryBrush}" Margin="0,0,0,8" />
+                                <WrapPanel>
+                                    <Button Content="Again" Tag="Again" Click="Rate_Click" />
+                                    <Button Content="Hard" Tag="Hard" Click="Rate_Click" />
+                                    <Button Content="Good" Tag="Good" Click="Rate_Click" />
+                                    <Button Content="Strong" Tag="Strong" Click="Rate_Click" />
+                                </WrapPanel>
+                            </StackPanel>
                         </StackPanel>
                         <TextBlock x:Name="StatusText" Foreground="#FFC66D" Margin="0,14,0,0" TextWrapping="Wrap" />
                     </StackPanel>

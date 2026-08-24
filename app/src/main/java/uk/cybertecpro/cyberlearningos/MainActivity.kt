@@ -30,6 +30,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mission: TextView
     private lateinit var selector: Spinner
     private lateinit var editor: LinearLayout
+    private lateinit var pageTabs: LinearLayout
+    private lateinit var understandPage: LinearLayout
+    private lateinit var techniquePage: LinearLayout
+    private lateinit var practicePage: LinearLayout
     private lateinit var stepMeta: TextView
     private lateinit var stepTitle: TextView
     private lateinit var whatText: TextView
@@ -41,6 +45,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var evidenceField: EditText
     private lateinit var advance: Button
     private lateinit var ratings: LinearLayout
+    private lateinit var explanationText: TextView
+    private lateinit var avoidText: TextView
+    private lateinit var diagramTitle: TextView
+    private lateinit var diagramPanel: LinearLayout
+    private lateinit var guidedPracticeText: TextView
+    private lateinit var sourceAnchorText: TextView
+    private var activePage = StepPage.UNDERSTAND
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +100,7 @@ class MainActivity : AppCompatActivity() {
         selector.onItemSelectedListener = SimpleItemSelectedListener { position ->
             if (position != selectedIndex && position in topics.indices) {
                 selectedIndex = position
+                activePage = if (topics[position].completed) StepPage.PRACTICE else StepPage.UNDERSTAND
                 refreshEditor()
             }
         }
@@ -102,22 +114,56 @@ class MainActivity : AppCompatActivity() {
 
         stepMeta = label("", 13f, ACCENT)
         stepTitle = label("", 24f, Color.WHITE)
+        pageTabs = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            StepPage.entries.forEach { page ->
+                addView(Button(this@MainActivity).apply {
+                    text = page.label
+                    setOnClickListener { showPage(page) }
+                }, LinearLayout.LayoutParams(0, -2, 1f))
+            }
+        }
+        editor.addView(stepMeta)
+        editor.addView(stepTitle, margin(top = 3, bottom = 8))
+        editor.addView(pageTabs, margin(bottom = 12))
+
+        understandPage = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         whatText = guideBlock("WHAT TO DO")
         whyText = guideBlock("WHY IT MATTERS")
+        explanationText = guideBlock("UNDERSTAND THE IDEA")
+        avoidText = guideBlock("COMMON TRAP")
+        sourceAnchorText = guideBlock("WHERE THIS COMES FROM")
+        understandPage.addView(whatText)
+        understandPage.addView(whyText, margin(top = 10))
+        understandPage.addView(explanationText, margin(top = 10))
+        understandPage.addView(avoidText, margin(top = 10))
+        understandPage.addView(sourceAnchorText, margin(top = 10))
+        editor.addView(understandPage)
+
+        techniquePage = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         howText = guideBlock("HOW TO ACHIEVE IT")
+        diagramTitle = label("VISUAL MODEL", 12f, ACCENT)
+        diagramPanel = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12))
+            setBackgroundColor(Color.rgb(23, 40, 61))
+        }
         exampleText = guideBlock("CYBERSECURITY EXAMPLE")
+        guidedPracticeText = guideBlock("TRY IT NOW")
+        techniquePage.addView(howText)
+        techniquePage.addView(diagramTitle, margin(top = 12, bottom = 5))
+        techniquePage.addView(diagramPanel)
+        techniquePage.addView(exampleText, margin(top = 10))
+        techniquePage.addView(guidedPracticeText, margin(top = 10))
+        editor.addView(techniquePage)
+
+        practicePage = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         evidenceLabel = label("YOUR EVIDENCE", 12f, ACCENT)
         doneText = guideBlock("YOU ARE READY TO CONTINUE WHEN")
-        editor.addView(stepMeta)
-        editor.addView(stepTitle, margin(top = 3, bottom = 12))
-        editor.addView(whatText)
-        editor.addView(whyText, margin(top = 10))
-        editor.addView(howText, margin(top = 10))
-        editor.addView(exampleText, margin(top = 10, bottom = 14))
-        editor.addView(evidenceLabel)
+        practicePage.addView(evidenceLabel)
         evidenceField = evidenceField()
-        editor.addView(evidenceField, margin(top = 5))
-        editor.addView(doneText, margin(top = 10))
+        practicePage.addView(evidenceField, margin(top = 5))
+        practicePage.addView(doneText, margin(top = 10))
 
         val actions = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         actions.addView(Button(this).apply {
@@ -129,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             setOnClickListener { advance() }
         }
         actions.addView(advance, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(8) })
-        editor.addView(actions, margin(top = 12))
+        practicePage.addView(actions, margin(top = 12))
 
         ratings = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -144,7 +190,8 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
-        editor.addView(ratings, margin(top = 12))
+        practicePage.addView(ratings, margin(top = 12))
+        editor.addView(practicePage)
 
         body.addView(TextView(this).apply {
             text = "Method inspiration and credit: Dr Justin Sung - My Exact 14-Step Guide To Learn Anything Faster"
@@ -186,6 +233,7 @@ class MainActivity : AppCompatActivity() {
         if (topic == null) return
 
         if (topic.completed) {
+            pageTabs.visibility = View.GONE
             stepMeta.text = "14 STEPS COMPLETE  •  RETRIEVAL CYCLE"
             stepTitle.text = topic.title
             whatText.text = section("WHAT TO DO", "Close your resources and reconstruct the topic before rating yourself.")
@@ -198,16 +246,24 @@ class MainActivity : AppCompatActivity() {
             doneText.text = section("RATE ONLY WHEN", "You have recorded an unaided retrieval or application attempt.")
             advance.visibility = View.GONE
             ratings.visibility = View.VISIBLE
+            showPage(StepPage.PRACTICE)
             return
         }
 
+        pageTabs.visibility = View.VISIBLE
         val guide = topic.currentGuide()
+        val lesson = TeachingContent.forStep(guide.number)
         stepMeta.text = "STEP ${guide.number} OF 14  •  PHASE ${phaseNumber(guide.phase)} - ${guide.phase.uppercase()}"
         stepTitle.text = guide.title
         whatText.text = section("WHAT TO DO", guide.what)
         whyText.text = section("WHY IT MATTERS", guide.why)
-        howText.text = section("HOW TO ACHIEVE IT", guide.how.mapIndexed { index, item -> "${index + 1}. $item" }.joinToString("\n"))
+        explanationText.text = section(lesson.technique.uppercase(), lesson.explanation)
+        avoidText.text = section("COMMON TRAP", lesson.avoid)
+        sourceAnchorText.text = section("TRANSCRIPT ANCHOR", lesson.transcriptAnchor)
+        howText.text = section("HOW TO ACHIEVE IT", lesson.walkthrough.mapIndexed { index, item -> "${index + 1}. $item" }.joinToString("\n\n"))
+        renderDiagram(lesson)
         exampleText.text = section("CYBERSECURITY EXAMPLE", guide.cyberExample)
+        guidedPracticeText.text = section("TRY IT NOW", lesson.guidedPractice)
         evidenceLabel.text = "YOUR EVIDENCE  •  ${guide.evidencePrompt}"
         evidenceField.hint = guide.evidencePrompt
         evidenceField.setText(topic.currentEvidence())
@@ -215,6 +271,30 @@ class MainActivity : AppCompatActivity() {
         advance.text = if (guide.number == 14) "Complete 14-step cycle" else "Complete step ${guide.number}"
         advance.visibility = View.VISIBLE
         ratings.visibility = View.GONE
+        showPage(activePage)
+    }
+
+    private fun renderDiagram(lesson: StepLesson) {
+        diagramTitle.text = "VISUAL MODEL  •  ${lesson.technique.uppercase()}"
+        diagramPanel.removeAllViews()
+        lesson.diagram.forEachIndexed { index, node ->
+            diagramPanel.addView(label(node, 15f, Color.WHITE).apply {
+                gravity = Gravity.CENTER
+                setPadding(dp(10))
+                setBackgroundColor(Color.rgb(12, 73, 83))
+            })
+            if (index < lesson.diagram.lastIndex) {
+                diagramPanel.addView(label("↓", 22f, ACCENT).apply { gravity = Gravity.CENTER })
+            }
+        }
+    }
+
+    private fun showPage(page: StepPage) {
+        activePage = page
+        if (!::understandPage.isInitialized) return
+        understandPage.visibility = if (page == StepPage.UNDERSTAND) View.VISIBLE else View.GONE
+        techniquePage.visibility = if (page == StepPage.TECHNIQUE) View.VISIBLE else View.GONE
+        practicePage.visibility = if (page == StepPage.PRACTICE) View.VISIBLE else View.GONE
     }
 
     private fun saveEvidence(showConfirmation: Boolean) {
@@ -236,6 +316,7 @@ class MainActivity : AppCompatActivity() {
             topic.completed = true
             LearningPolicy.schedule(topic, ReviewRating.HARD)
         } else topic.currentStep += 1
+        activePage = StepPage.UNDERSTAND
         store.save(topics)
         refresh()
     }
@@ -290,13 +371,67 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showRoadmap() {
-        val text = LearningGuide.steps.joinToString("\n\n") { step ->
-            "${step.number}. ${step.title}\n${step.phase} - ${step.what}"
-        } + "\n\nSource inspiration: Dr Justin Sung. Tap About/source on the main screen for the cited video."
         AlertDialog.Builder(this)
             .setTitle("The complete 14-step roadmap")
-            .setMessage(text)
-            .setPositiveButton("Close", null)
+            .setItems(LearningGuide.steps.map { "${it.number}. ${it.title}" }.toTypedArray()) { _, index ->
+                showReferenceLesson(LearningGuide.steps[index])
+            }
+            .setNegativeButton("Close", null)
+            .show()
+    }
+
+    private fun showReferenceLesson(guide: LearningStepGuide) {
+        val lesson = TeachingContent.forStep(guide.number)
+        val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(16)) }
+        box.addView(label("STEP ${guide.number} OF 14  •  ${guide.phase.uppercase()}", 12f, ACCENT))
+        box.addView(label(guide.title, 22f, Color.WHITE), margin(top = 4, bottom = 10))
+        val tabs = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        val page = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+
+        fun renderReference(selected: StepPage) {
+            page.removeAllViews()
+            when (selected) {
+                StepPage.UNDERSTAND -> {
+                    page.addView(panelText("WHAT TO DO\n${guide.what}"))
+                    page.addView(panelText("WHY IT MATTERS\n${guide.why}"), margin(top = 8))
+                    page.addView(panelText("${lesson.technique.uppercase()}\n${lesson.explanation}"), margin(top = 8))
+                    page.addView(panelText("COMMON TRAP\n${lesson.avoid}"), margin(top = 8))
+                    page.addView(panelText("TRANSCRIPT ANCHOR\n${lesson.transcriptAnchor}"), margin(top = 8))
+                }
+                StepPage.TECHNIQUE -> {
+                    page.addView(panelText("HOW TO ACHIEVE IT\n" + lesson.walkthrough.mapIndexed { i, value -> "${i + 1}. $value" }.joinToString("\n\n")))
+                    lesson.diagram.forEachIndexed { index, node ->
+                        page.addView(label(node, 14f, Color.WHITE).apply {
+                            gravity = Gravity.CENTER; setPadding(dp(10)); setBackgroundColor(Color.rgb(12, 73, 83))
+                        }, margin(top = if (index == 0) 10 else 4))
+                        if (index < lesson.diagram.lastIndex) page.addView(label("↓", 20f, ACCENT).apply { gravity = Gravity.CENTER })
+                    }
+                    page.addView(panelText("CYBERSECURITY EXAMPLE\n${guide.cyberExample}"), margin(top = 10))
+                    page.addView(panelText("TRY IT NOW\n${lesson.guidedPractice}"), margin(top = 8))
+                }
+                StepPage.PRACTICE -> {
+                    page.addView(panelText("PRACTISE & PROVE\n${guide.evidencePrompt}"))
+                    page.addView(panelText("READY TO CONTINUE WHEN\n${guide.doneWhen}"), margin(top = 8))
+                    page.addView(label("Start or select a topic on the home screen to save evidence.", 13f, Color.rgb(175, 196, 221)), margin(top = 10))
+                }
+            }
+        }
+
+        StepPage.entries.forEach { selected ->
+            tabs.addView(Button(this).apply {
+                text = selected.label
+                setOnClickListener { renderReference(selected) }
+            }, LinearLayout.LayoutParams(0, -2, 1f))
+        }
+        box.addView(tabs)
+        box.addView(page, margin(top = 10))
+        renderReference(StepPage.UNDERSTAND)
+
+        val scroll = ScrollView(this).apply { addView(box) }
+        AlertDialog.Builder(this)
+            .setView(scroll)
+            .setPositiveButton("Back to roadmap") { _, _ -> showRoadmap() }
+            .setNegativeButton("Close", null)
             .show()
     }
 
@@ -349,4 +484,10 @@ class MainActivity : AppCompatActivity() {
     companion object {
         val ACCENT: Int = Color.rgb(61, 229, 194)
     }
+}
+
+private enum class StepPage(val label: String) {
+    UNDERSTAND("Understand"),
+    TECHNIQUE("How to do it"),
+    PRACTICE("Practise & prove"),
 }

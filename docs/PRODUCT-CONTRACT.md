@@ -1,4 +1,4 @@
-# V2 product contract - guided 14-step method
+# V3 product contract - teach, practise and prove the 14-step method
 
 ## Purpose
 
@@ -8,7 +8,15 @@ stage without a reminder, procedure, example, and evidence prompt is a product d
 
 ## Required step experience
 
-Every active step must display:
+Every active step must provide three pages:
+
+1. **Understand** — what to do, why it matters, the underlying technique, the common
+   failure mode, and the relevant timestamp in the attributed source;
+2. **How to do it** — a detailed numbered procedure, a visual relationship or process
+   diagram, a cybersecurity worked example, and a guided practice exercise;
+3. **Practise & prove** — the learner's evidence field and an observable completion condition.
+
+Across those pages the app must display:
 
 1. the original step number, phase, and name;
 2. what the learner should do;
@@ -16,7 +24,10 @@ Every active step must display:
 4. a numbered procedure explaining how to achieve it;
 5. a cybersecurity-specific worked example;
 6. the evidence the learner must record;
-7. an observable completion condition.
+7. an observable completion condition;
+8. the technique's common trap;
+9. a visual model with at least four meaningful nodes;
+10. a guided practice exercise and transcript anchor.
 
 The learner can open the complete 14-step roadmap at any time. Progression is blocked
 until the active step contains learner-authored evidence.
@@ -25,20 +36,20 @@ until the active step contains learner-authored evidence.
 
 | Phase | Step | Name |
 |---|---:|---|
-| Orient | 1 | Define the learning outcome |
-| Orient | 2 | Establish purpose |
-| Orient | 3 | Schedule the learning |
-| Prime | 4 | Prime before intensive study |
-| Prime | 5 | Find the gist |
-| Build & Connect | 6 | Protect working memory |
-| Build & Connect | 7 | Prioritise relationships |
-| Build & Connect | 8 | Use relational notes |
-| Build & Connect | 9 | Choose learning order intelligently |
-| Build & Connect | 10 | Follow the confusion compass |
-| Perform | 11 | Match learning to real performance |
-| Perform | 12 | Attempt before getting help |
-| Retain & Communicate | 13 | Test strategically |
-| Retain & Communicate | 14 | Reproduce real conditions |
+| Orient | 1 | Measure outcomes, not speed |
+| Orient | 2 | Set a clear purpose and plan |
+| Orient | 3 | Build an actual schedule |
+| Prime | 4 | Plan for priming |
+| Prime | 5 | Prime for the gist |
+| Build & Connect | 6 | Create a focused environment |
+| Build & Connect | 7 | Make connections the priority |
+| Build & Connect | 8 | Take relational notes |
+| Build & Connect | 9 | Individualise the learning order |
+| Build & Connect | 10 | Use confusion as a compass |
+| Perform | 11 | Match the challenge |
+| Perform | 12 | Attempt before feedback |
+| Retain & Communicate | 13 | Test at the right frequency |
+| Retain & Communicate | 14 | Match the conditions that matter |
 
 After Step 14, adaptive retrieval reviews continue outside the numbered method. A review
 rating is rejected until the learner records an unaided retrieval or application attempt.
@@ -52,7 +63,10 @@ rating is rejected until the learner records an unaided retrieval or application
 5. Real performance includes investigation, decision, confidence, trade-offs, and an inspectable artifact.
 6. Real-condition evidence includes communication for analyst, technical-leader, and executive audiences.
 7. Learning Debt decreases only through evidence or completed retrieval.
-8. V2 remains local-only and collects no analytics or personal data remotely.
+8. V3 remains local-only and collects no analytics or personal data remotely.
+9. A result cannot be requested until the relevant method has first been taught.
+10. Source ideas are paraphrased and extended with original cyber exercises; source
+    expression, graphics, branding, and course material are not reproduced.
 
 ## Review policy
 

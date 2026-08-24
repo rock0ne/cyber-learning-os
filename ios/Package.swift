@@ -10,7 +10,7 @@ let package = Package(
             name: "CyberLearningOSCore",
             path: "CyberLearningOS",
             exclude: ["ContentView.swift", "CyberLearningOSApp.swift", "LearningStore.swift", "PrivacyInfo.xcprivacy"],
-            sources: ["LearningModel.swift"]
+            sources: ["LearningModel.swift", "TeachingContent.swift"]
         ),
         .testTarget(
             name: "CyberLearningOSTests",

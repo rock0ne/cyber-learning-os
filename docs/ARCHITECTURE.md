@@ -5,7 +5,7 @@
 The current release has one trust boundary: the local application sandbox. There is no backend.
 
 ```text
-14-step guide + learner evidence -> native UI -> learning policy -> app-private storage
+14 teaching lessons -> native multi-page guide -> learner practice/evidence -> learning policy -> app-private storage
 ```
 
 Android declares no `INTERNET` permission. iOS declares no collected data in its privacy
@@ -14,10 +14,11 @@ source-credit link explicitly hands the URL to the operating-system browser.
 
 ## Cross-platform contract
 
-The native clients independently implement the same fourteen named steps, five phases,
-guidance sections, evidence gate, adaptive review policy, overdue-first mission selection,
-and source attribution. `scripts/check_source_parity.py` fails CI if a platform drops a
-step, a required guidance section, or the citation identifier.
+The native clients independently implement the same fourteen named steps, teaching
+techniques, diagrams, guided practices, five phases, evidence gate, adaptive review
+policy, overdue-first mission selection, and source attribution.
+`scripts/check_source_parity.py` fails CI if a platform drops a step, technique, required
+guidance section, or citation identifier.
 
 Android and Windows migrate the earlier eight-stage prototype records into the nearest
 fourteen-step positions while retaining the old evidence. Each platform otherwise keeps

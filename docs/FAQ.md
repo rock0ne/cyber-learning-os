@@ -2,9 +2,10 @@
 
 ## Where are the fourteen steps?
 
-Every topic opens at Step 1 and displays the active step's purpose, procedure,
-cybersecurity example, evidence prompt, and completion condition. Use **View all 14
-steps** for the full roadmap at any time.
+Use **View all 14 steps** to browse the method without creating a topic. Open a step and
+move through **Understand**, **How to do it**, and **Practise & prove**. Each step teaches
+the technique, common trap, process diagram, procedure and cyber exercise before asking
+for evidence.
 
 ## Is this a course library?
 
@@ -13,18 +14,18 @@ sources. It measures missing evidence, not how much content you opened.
 
 ## Does it prove that my answers are correct?
 
-Not in V1. It enforces the workflow and records your evidence, but free text is not
+Not in V3. It teaches and enforces the workflow and records your evidence, but free text is not
 independently graded. Future scenario assessment must use protected truth and a separate
 review design before making competency claims.
 
 ## Does it use AI?
 
-No. The current version deliberately establishes unaided learning habits first. A later AI coach must
+No. V3 deliberately establishes unaided learning habits first. A later AI coach must
 withhold solutions until the learner attempts, hypothesises and explains their reasoning.
 
 ## Is my data uploaded?
 
-No. V1 has no backend, analytics or account system. Data stays in the application sandbox
+No. V3 has no backend, analytics or account system. Data stays in the application sandbox
 on each device.
 
 ## Why three explanations?

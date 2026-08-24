@@ -6,22 +6,44 @@ guide_files = {
     "ios": ROOT / "ios/CyberLearningOS/LearningModel.swift",
     "windows": ROOT / "windows/CyberLearningOS.Windows/LearningGuide.cs",
 }
+teaching_files = {
+    "android": ROOT / "app/src/main/java/uk/cybertecpro/cyberlearningos/TeachingContent.kt",
+    "ios": ROOT / "ios/CyberLearningOS/TeachingContent.swift",
+    "windows": ROOT / "windows/CyberLearningOS.Windows/TeachingContent.cs",
+}
 
 step_titles = [
-    "Define the learning outcome",
-    "Establish purpose",
-    "Schedule the learning",
-    "Prime before intensive study",
-    "Find the gist",
-    "Protect working memory",
-    "Prioritise relationships",
-    "Use relational notes",
-    "Choose learning order intelligently",
-    "Follow the confusion compass",
-    "Match learning to real performance",
-    "Attempt before getting help",
-    "Test strategically",
-    "Reproduce real conditions",
+    "Measure outcomes, not speed",
+    "Set a clear purpose and plan",
+    "Build an actual schedule",
+    "Plan for priming",
+    "Prime for the gist",
+    "Create a focused environment",
+    "Make connections the priority",
+    "Take relational notes",
+    "Individualise the learning order",
+    "Use confusion as a compass",
+    "Match the challenge",
+    "Attempt before feedback",
+    "Test at the right frequency",
+    "Match the conditions that matter",
+]
+
+techniques = [
+    "Outcome scoreboard",
+    "Purpose-and-plan canvas",
+    "Time-block design",
+    "Priming preview",
+    "Gist map",
+    "Distraction sheet",
+    "Schema-building questions",
+    "Relational note map",
+    "Relevance-led route",
+    "Confusion compass",
+    "Challenge matcher",
+    "Attempt-feedback boundary",
+    "Forgetting calibration",
+    "Pressure rehearsal",
 ]
 
 for platform, path in guide_files.items():
@@ -37,6 +59,15 @@ for platform, path in guide_files.items():
         }
         if required_guidance not in ui_paths[platform].read_text(encoding="utf-8"):
             raise SystemExit(f"{platform} UI is missing guidance section: {required_guidance}")
+
+for platform, path in teaching_files.items():
+    content = path.read_text(encoding="utf-8")
+    missing = [technique for technique in techniques if technique not in content]
+    if missing:
+        raise SystemExit(f"{platform} teaching content is missing: {', '.join(missing)}")
+    for phrase in ["transcript", "guidedPractice", "Diagram"]:
+        if phrase.lower() not in content.lower():
+            raise SystemExit(f"{platform} teaching content is missing contract marker: {phrase}")
 
 attribution_files = [
     ROOT / "README.md",

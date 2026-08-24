@@ -4,10 +4,15 @@ import XCTest
 final class LearningPolicyTests: XCTestCase {
     func testGuideContainsAllFourteenNamedActionableSteps() {
         XCTAssertEqual(LearningGuide.steps.count, 14)
-        XCTAssertEqual(LearningGuide.steps.first?.title, "Define the learning outcome")
-        XCTAssertEqual(LearningGuide.steps.last?.title, "Reproduce real conditions")
+        XCTAssertEqual(LearningGuide.steps.first?.title, "Measure outcomes, not speed")
+        XCTAssertEqual(LearningGuide.steps.last?.title, "Match the conditions that matter")
         XCTAssertTrue(LearningGuide.steps.allSatisfy {
             !$0.what.isEmpty && $0.how.contains("1.") && !$0.evidencePrompt.isEmpty
+        })
+        XCTAssertEqual(TeachingContent.lessons.count, 14)
+        XCTAssertTrue(TeachingContent.lessons.allSatisfy {
+            !$0.explanation.isEmpty && !$0.avoid.isEmpty && $0.diagram.count >= 4 &&
+                !$0.guidedPractice.isEmpty && !$0.transcriptAnchor.isEmpty
         })
     }
 

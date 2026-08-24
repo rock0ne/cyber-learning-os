@@ -8,13 +8,22 @@ public sealed class LearningPolicyTests
     public void Guide_contains_all_fourteen_named_and_actionable_steps()
     {
         Assert.Equal(14, LearningGuide.Steps.Count);
-        Assert.Equal("Define the learning outcome", LearningGuide.Steps[0].Title);
-        Assert.Equal("Reproduce real conditions", LearningGuide.Steps[^1].Title);
+        Assert.Equal("Measure outcomes, not speed", LearningGuide.Steps[0].Title);
+        Assert.Equal("Match the conditions that matter", LearningGuide.Steps[^1].Title);
         Assert.All(LearningGuide.Steps, step =>
         {
             Assert.False(string.IsNullOrWhiteSpace(step.What));
             Assert.Contains("1.", step.How);
             Assert.False(string.IsNullOrWhiteSpace(step.EvidencePrompt));
+        });
+        Assert.Equal(14, TeachingContent.Lessons.Count);
+        Assert.All(TeachingContent.Lessons, lesson =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(lesson.Explanation));
+            Assert.False(string.IsNullOrWhiteSpace(lesson.Avoid));
+            Assert.True(lesson.Diagram.Count >= 4);
+            Assert.False(string.IsNullOrWhiteSpace(lesson.GuidedPractice));
+            Assert.False(string.IsNullOrWhiteSpace(lesson.TranscriptAnchor));
         });
     }
 

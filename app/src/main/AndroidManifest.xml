@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- V1 is deliberately offline-only: no INTERNET permission. -->
+    <!-- The app is deliberately offline-only: no INTERNET permission. -->
     <application
         android:allowBackup="false"
         android:label="Cyber Learning OS"

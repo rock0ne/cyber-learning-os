@@ -8,7 +8,7 @@ The governing rule is simple:
 
 > Progress is earned through demonstrated understanding, not content consumption.
 
-## What V2 teaches and enforces
+## What V3 teaches and enforces
 
 Every topic passes through the complete guided method:
 
@@ -18,9 +18,13 @@ ORIENT (1-3) -> PRIME (4-5) -> BUILD & CONNECT (6-10)
 ```
 
 - All fourteen named steps are present; none are collapsed into generic stages.
-- Every step explains what to do, why it matters, exactly how to do it, a cybersecurity
-  example, the evidence to record, and the completion condition.
-- The complete roadmap remains available as a reminder while working.
+- Every step is a small multi-page lesson: **Understand**, **How to do it**, and
+  **Practise & prove**.
+- Each lesson teaches a named technique, the common trap, a visual process diagram,
+  detailed procedure, cybersecurity worked example, guided exercise, evidence prompt,
+  source timestamp, and completion condition.
+- The complete roadmap is a browsable reference; learners can study any technique before
+  creating a topic.
 - Every step requires learner-authored evidence before the next one unlocks.
 - Step 14 requires realistic conditions and analyst, technical-leader, and executive communication.
 - Adaptive review intervals respond to demonstrated performance.
@@ -82,7 +86,7 @@ cybersecurity learning and senior professional judgement.
 
 ## Scope and roadmap
 
-V2 proves the offline guided fourteen-step method. It intentionally excludes AI tutoring, cloud
+V3 proves the offline multi-page teaching and evidence method. It intentionally excludes AI tutoring, cloud
 sync, subscriptions, public profiles and employer evidence. Those require separate
 privacy, identity, security and assessment decisions. See
 [the product contract](docs/PRODUCT-CONTRACT.md).

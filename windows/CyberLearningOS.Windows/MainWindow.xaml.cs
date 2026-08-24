@@ -9,6 +9,7 @@ public partial class MainWindow : Window
     private readonly LearningStore _store = new();
     private readonly List<LearningTopic> _topics;
     private bool _rendering;
+    private LessonPage _activePage = LessonPage.Understand;
 
     public MainWindow()
     {
@@ -51,6 +52,7 @@ public partial class MainWindow : Window
         StatusText.Text = "";
         if (topic.Completed)
         {
+            PageTabs.Visibility = Visibility.Collapsed;
             StepMetaText.Text = "14 STEPS COMPLETE  •  RETRIEVAL CYCLE";
             StepTitleText.Text = topic.Title;
             WhatText.Text = "Close resources and reconstruct the topic before rating yourself.";
@@ -62,15 +64,24 @@ public partial class MainWindow : Window
             DoneText.Text = "You have recorded an unaided retrieval or application attempt.";
             EditorActions.Visibility = Visibility.Collapsed;
             RatingPanel.Visibility = Visibility.Visible;
+            ShowPage(LessonPage.Practice);
             return;
         }
 
         var guide = topic.CurrentGuide;
+        var lesson = TeachingContent.ForStep(guide.Number);
+        PageTabs.Visibility = Visibility.Visible;
         StepMetaText.Text = $"STEP {guide.Number} OF 14  •  {guide.Phase.ToUpperInvariant()}";
         StepTitleText.Text = guide.Title;
         WhatText.Text = guide.What;
         WhyText.Text = guide.Why;
         HowText.Text = guide.How;
+        TechniqueNameText.Text = lesson.Technique.ToUpperInvariant();
+        ExplanationText.Text = lesson.Explanation;
+        AvoidText.Text = lesson.Avoid;
+        SourceAnchorText.Text = lesson.TranscriptAnchor;
+        GuidedPracticeText.Text = lesson.GuidedPractice;
+        RenderDiagram(lesson);
         ExampleText.Text = guide.CyberExample;
         EvidencePromptText.Text = guide.EvidencePrompt;
         EvidenceField.Text = topic.StepEvidence[topic.CurrentStep];
@@ -78,6 +89,53 @@ public partial class MainWindow : Window
         AdvanceButton.Content = guide.Number == 14 ? "Complete 14-step cycle" : $"Complete step {guide.Number}";
         EditorActions.Visibility = Visibility.Visible;
         RatingPanel.Visibility = Visibility.Collapsed;
+        ShowPage(_activePage);
+    }
+
+    private void RenderDiagram(StepLesson lesson)
+    {
+        DiagramTitleText.Text = $"VISUAL MODEL  •  {lesson.Technique.ToUpperInvariant()}";
+        DiagramPanel.Children.Clear();
+        for (var index = 0; index < lesson.Diagram.Count; index++)
+        {
+            DiagramPanel.Children.Add(new Border
+            {
+                Background = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(12, 73, 83)),
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(12),
+                Child = new TextBlock
+                {
+                    Text = lesson.Diagram[index],
+                    TextAlignment = TextAlignment.Center,
+                    FontWeight = FontWeights.SemiBold,
+                },
+            });
+            if (index < lesson.Diagram.Count - 1)
+            {
+                DiagramPanel.Children.Add(new TextBlock
+                {
+                    Text = "↓",
+                    TextAlignment = TextAlignment.Center,
+                    FontSize = 22,
+                    Foreground = (System.Windows.Media.Brush)FindResource("AccentBrush"),
+                });
+            }
+        }
+    }
+
+    private void ShowPage(LessonPage page)
+    {
+        _activePage = page;
+        UnderstandPanel.Visibility = page == LessonPage.Understand ? Visibility.Visible : Visibility.Collapsed;
+        TechniquePanel.Visibility = page == LessonPage.Technique ? Visibility.Visible : Visibility.Collapsed;
+        PracticePanel.Visibility = page == LessonPage.Practice ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void Page_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string value } && Enum.TryParse<LessonPage>(value, out var page))
+            ShowPage(page);
     }
 
     private void SaveEvidence()
@@ -108,6 +166,7 @@ public partial class MainWindow : Window
             LearningPolicy.Schedule(topic, ReviewRating.Hard);
         }
         else topic.CurrentStep++;
+        _activePage = LessonPage.Understand;
         _store.Save(_topics);
         Render();
     }
@@ -154,11 +213,22 @@ public partial class MainWindow : Window
 
     private void TopicSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (!_rendering) RenderEditor();
+        if (!_rendering)
+        {
+            _activePage = Selected?.Completed == true ? LessonPage.Practice : LessonPage.Understand;
+            RenderEditor();
+        }
     }
 
     private void Source_Click(object sender, RoutedEventArgs e) =>
         Process.Start(new ProcessStartInfo(LearningGuide.SourceUrl) { UseShellExecute = true });
 
     private static string DebtLabel(int debt) => debt == 0 ? "LOW" : debt < 6 ? "MODERATE" : "HIGH";
+}
+
+internal enum LessonPage
+{
+    Understand,
+    Technique,
+    Practice,
 }

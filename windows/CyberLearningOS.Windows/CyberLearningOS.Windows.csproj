@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon />
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
     <Product>Cyber Learning OS</Product>
     <Description>An offline learning operating system that rewards demonstrated understanding.</Description>
   </PropertyGroup>
