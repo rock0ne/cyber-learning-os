@@ -6,7 +6,6 @@ namespace CyberLearningOS.Windows;
 
 public partial class MainWindow : Window
 {
-    private const string SourceUrl = "https://youtu.be/CQQTwvDb5xg";
     private readonly LearningStore _store = new();
     private readonly List<LearningTopic> _topics;
     private bool _rendering;
@@ -26,15 +25,17 @@ public partial class MainWindow : Window
         var selectedId = Selected?.Id;
         TopicSelector.ItemsSource = null;
         TopicSelector.ItemsSource = _topics;
-        TopicSelector.SelectedItem = _topics.FirstOrDefault(t => t.Id == selectedId) ?? _topics.FirstOrDefault();
+        TopicSelector.SelectedItem = _topics.FirstOrDefault(topic => topic.Id == selectedId) ?? _topics.FirstOrDefault();
 
         var debt = LearningPolicy.LearningDebt(_topics);
-        var due = _topics.Count(t => t.Stage == LearningStage.Review && t.DueAt < DateTimeOffset.UtcNow);
+        var due = _topics.Count(topic => topic.Completed && topic.DueAt < DateTimeOffset.UtcNow);
         DebtText.Text = $"Learning Debt: {DebtLabel(debt)} ({debt})  •  {due} due  •  {_topics.Count} topics";
         var next = LearningPolicy.NextMission(_topics);
         MissionText.Text = next is null
-            ? "TODAY'S MISSION\nCreate one topic with a clear capability outcome."
-            : $"TODAY'S MISSION\n{next.Stage.ToString().ToUpperInvariant()}  •  {next.Title}\nCapability: {next.Capability}";
+            ? "TODAY'S MISSION\nCreate a topic and begin Step 1."
+            : next.Completed
+                ? $"TODAY'S MISSION\nRETRIEVAL REVIEW  •  {next.Title}\nReconstruct before consulting notes or AI."
+                : $"TODAY'S MISSION\nSTEP {next.CurrentGuide.Number} OF 14  •  {next.Title}\n{next.CurrentGuide.Title}\nCapability: {next.Capability}";
         _rendering = false;
         RenderEditor();
     }
@@ -47,60 +48,43 @@ public partial class MainWindow : Window
         CapabilityText.Text = topic?.Capability ?? "";
         if (topic is null) return;
 
-        StageText.Text = $"{topic.Stage.ToString().ToUpperInvariant()}  •  {topic.Title}";
-        PromptText.Text = Prompt(topic.Stage);
-        FieldTwo.Visibility = FieldThree.Visibility = Visibility.Collapsed;
-        FieldTwoLabel.Visibility = FieldThreeLabel.Visibility = Visibility.Collapsed;
-        RatingPanel.Visibility = topic.Stage == LearningStage.Review ? Visibility.Visible : Visibility.Collapsed;
-        EditorActions.Visibility = topic.Stage == LearningStage.Review ? Visibility.Collapsed : Visibility.Visible;
-        FieldOne.Visibility = FieldOneLabel.Visibility = topic.Stage == LearningStage.Review ? Visibility.Collapsed : Visibility.Visible;
         StatusText.Text = "";
-
-        switch (topic.Stage)
+        if (topic.Completed)
         {
-            case LearningStage.Prime: SetOne("Write the gist before detailed study", topic.PrimeGist); break;
-            case LearningStage.Learn: SetOne("Selective notes: mechanisms and relationships", topic.CoreNotes); break;
-            case LearningStage.Connect: SetOne("What does this connect to or change?", topic.Connections); break;
-            case LearningStage.Retrieve: SetOne("Close resources. Reconstruct from memory.", topic.Retrieval); break;
-            case LearningStage.Apply: SetOne("Lab, logs, scenario, investigation or decision evidence", topic.Application); break;
-            case LearningStage.Explain:
-                SetOne("Analyst: mechanism, telemetry and technical reasoning", topic.AnalystExplanation);
-                FieldTwo.Visibility = FieldThree.Visibility = Visibility.Visible;
-                FieldTwoLabel.Visibility = FieldThreeLabel.Visibility = Visibility.Visible;
-                FieldTwoLabel.Text = "Technical leader: significance, confidence, dependencies and action";
-                FieldThreeLabel.Text = "Executive: exposure, consequence, urgency and decision required";
-                FieldTwo.Text = topic.LeaderExplanation;
-                FieldThree.Text = topic.ExecutiveExplanation;
-                break;
-            case LearningStage.Feedback: SetOne("What was right, what was missed, and why?", topic.Feedback); break;
+            StepMetaText.Text = "14 STEPS COMPLETE  •  RETRIEVAL CYCLE";
+            StepTitleText.Text = topic.Title;
+            WhatText.Text = "Close resources and reconstruct the topic before rating yourself.";
+            WhyText.Text = "The rating must describe demonstrated retrieval, not familiarity.";
+            HowText.Text = "1. Reproduce the model from memory.\n2. Apply it to a fresh case.\n3. Compare with evidence only after committing your answer.";
+            ExampleText.Text = "Rebuild the investigation path against different logs and defend the action you would take.";
+            EvidencePromptText.Text = "What did you retrieve, apply, miss, and correct?";
+            EvidenceField.Text = topic.ReviewEvidence;
+            DoneText.Text = "You have recorded an unaided retrieval or application attempt.";
+            EditorActions.Visibility = Visibility.Collapsed;
+            RatingPanel.Visibility = Visibility.Visible;
+            return;
         }
-    }
 
-    private void SetOne(string label, string value)
-    {
-        FieldOneLabel.Text = label;
-        FieldOne.Text = value;
-        FieldTwo.Text = FieldThree.Text = "";
+        var guide = topic.CurrentGuide;
+        StepMetaText.Text = $"STEP {guide.Number} OF 14  •  {guide.Phase.ToUpperInvariant()}";
+        StepTitleText.Text = guide.Title;
+        WhatText.Text = guide.What;
+        WhyText.Text = guide.Why;
+        HowText.Text = guide.How;
+        ExampleText.Text = guide.CyberExample;
+        EvidencePromptText.Text = guide.EvidencePrompt;
+        EvidenceField.Text = topic.StepEvidence[topic.CurrentStep];
+        DoneText.Text = guide.DoneWhen;
+        AdvanceButton.Content = guide.Number == 14 ? "Complete 14-step cycle" : $"Complete step {guide.Number}";
+        EditorActions.Visibility = Visibility.Visible;
+        RatingPanel.Visibility = Visibility.Collapsed;
     }
 
     private void SaveEvidence()
     {
-        var topic = Selected;
-        if (topic is null) return;
-        switch (topic.Stage)
-        {
-            case LearningStage.Prime: topic.PrimeGist = FieldOne.Text.Trim(); break;
-            case LearningStage.Learn: topic.CoreNotes = FieldOne.Text.Trim(); break;
-            case LearningStage.Connect: topic.Connections = FieldOne.Text.Trim(); break;
-            case LearningStage.Retrieve: topic.Retrieval = FieldOne.Text.Trim(); break;
-            case LearningStage.Apply: topic.Application = FieldOne.Text.Trim(); break;
-            case LearningStage.Explain:
-                topic.AnalystExplanation = FieldOne.Text.Trim();
-                topic.LeaderExplanation = FieldTwo.Text.Trim();
-                topic.ExecutiveExplanation = FieldThree.Text.Trim();
-                break;
-            case LearningStage.Feedback: topic.Feedback = FieldOne.Text.Trim(); break;
-        }
+        if (Selected is not { } topic) return;
+        if (topic.Completed) topic.ReviewEvidence = EvidenceField.Text.Trim();
+        else topic.StepEvidence[topic.CurrentStep] = EvidenceField.Text.Trim();
         _store.Save(_topics);
     }
 
@@ -113,27 +97,33 @@ public partial class MainWindow : Window
     private void Advance_Click(object sender, RoutedEventArgs e)
     {
         SaveEvidence();
-        var topic = Selected;
-        if (topic is null || !topic.CanAdvance())
+        if (Selected is not { } topic || !topic.CanAdvance())
         {
-            StatusText.Text = "Demonstrate this stage before continuing. Reading alone does not count as mastery.";
+            StatusText.Text = "Record the evidence requested by this step before continuing.";
             return;
         }
-        if (topic.Stage == LearningStage.Feedback)
+        if (topic.CurrentStep == LearningGuide.Steps.Count - 1)
         {
+            topic.Completed = true;
             LearningPolicy.Schedule(topic, ReviewRating.Hard);
-            topic.Stage = LearningStage.Review;
         }
-        else topic.Stage++;
+        else topic.CurrentStep++;
         _store.Save(_topics);
         Render();
     }
 
     private void Rate_Click(object sender, RoutedEventArgs e)
     {
+        SaveEvidence();
         if (Selected is not { } topic || sender is not Button { Tag: string value } ||
             !Enum.TryParse<ReviewRating>(value, out var rating)) return;
+        if (string.IsNullOrWhiteSpace(topic.ReviewEvidence))
+        {
+            StatusText.Text = "Record the unaided retrieval before rating it.";
+            return;
+        }
         LearningPolicy.Schedule(topic, rating);
+        topic.ReviewEvidence = "";
         _store.Save(_topics);
         Render();
         StatusText.Text = $"Next review in {topic.IntervalDays} day(s).";
@@ -155,25 +145,20 @@ public partial class MainWindow : Window
         TopicSelector.SelectedItem = topic;
     }
 
+    private void Roadmap_Click(object sender, RoutedEventArgs e)
+    {
+        var roadmap = string.Join("\n\n", LearningGuide.Steps.Select(step =>
+            $"{step.Number}. {step.Title}\n{step.Phase} - {step.What}"));
+        MessageBox.Show(this, roadmap, "The complete 14-step roadmap", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
     private void TopicSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (!_rendering) RenderEditor();
     }
 
     private void Source_Click(object sender, RoutedEventArgs e) =>
-        Process.Start(new ProcessStartInfo(SourceUrl) { UseShellExecute = true });
-
-    private static string Prompt(LearningStage stage) => stage switch
-    {
-        LearningStage.Prime => "What is this fundamentally about?",
-        LearningStage.Learn => "Acquire selectively; do not transcribe.",
-        LearningStage.Connect => "Build relationships, not folders.",
-        LearningStage.Retrieve => "Can you reconstruct it without support?",
-        LearningStage.Apply => "Use it under realistic conditions.",
-        LearningStage.Explain => "Preserve accuracy across three audiences.",
-        LearningStage.Feedback => "Compare your reasoning with the evidence.",
-        _ => "Retrieve again before rating yourself.",
-    };
+        Process.Start(new ProcessStartInfo(LearningGuide.SourceUrl) { UseShellExecute = true });
 
     private static string DebtLabel(int debt) => debt == 0 ? "LOW" : debt < 6 ? "MODERATE" : "HIGH";
 }

@@ -1,5 +1,11 @@
 # Frequently asked questions
 
+## Where are the fourteen steps?
+
+Every topic opens at Step 1 and displays the active step's purpose, procedure,
+cybersecurity example, evidence prompt, and completion condition. Use **View all 14
+steps** for the full roadmap at any time.
+
 ## Is this a course library?
 
 No. It organises how you learn material from books, labs, courses, incidents and other
@@ -13,7 +19,7 @@ review design before making competency claims.
 
 ## Does it use AI?
 
-No. V1 deliberately establishes unaided learning habits first. A later AI coach must
+No. The current version deliberately establishes unaided learning habits first. A later AI coach must
 withhold solutions until the learner attempts, hypothesises and explains their reasoning.
 
 ## Is my data uploaded?

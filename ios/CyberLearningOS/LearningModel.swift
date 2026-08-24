@@ -1,9 +1,127 @@
 import Foundation
 
-enum LearningStage: String, Codable, CaseIterable {
-    case prime, learn, connect, retrieve, apply, explain, feedback, review
+struct LearningStepGuide: Identifiable {
+    let number: Int
+    let phase: String
+    let title: String
+    let what: String
+    let why: String
+    let how: String
+    let cyberExample: String
+    let evidencePrompt: String
+    let doneWhen: String
+    var id: Int { number }
+}
 
-    var label: String { rawValue.capitalized }
+enum LearningGuide {
+    static let sourceURL = URL(string: "https://youtu.be/CQQTwvDb5xg")!
+    static let steps: [LearningStepGuide] = [
+        step(1, "Orient", "Define the learning outcome",
+             "Decide what you must be able to do, not merely what you intend to read.",
+             "An observable target separates competence from completion.",
+             "1. Use an action verb.\n2. Name the evidence that proves it.\n3. Identify its cybersecurity context and audience.",
+             "Replace 'learn Kerberos' with 'trace a Kerberos failure, identify its cause, and brief the service owner'.",
+             "Write the observable outcome, proof, context, and audience.",
+             "A reviewer could watch the performance and judge success."),
+        step(2, "Orient", "Establish purpose",
+             "Connect the topic to a real problem, role, decision, or capability gap.",
+             "Purpose directs attention and makes the knowledge easier to retrieve in context.",
+             "1. Complete 'I am learning this because...'.\n2. Write 2-4 questions the session must answer.\n3. State the cost of the gap.",
+             "Learn OAuth attack paths to assess token abuse and ask better identity-incident questions.",
+             "Record your purpose, 2-4 questions, and consequence of the gap.",
+             "Every activity traces to the purpose or a question."),
+        step(3, "Orient", "Schedule the learning",
+             "Turn study time into a bounded mission with named outputs.",
+             "A mission prevents reading from consuming application and retrieval time.",
+             "1. Choose a session length.\n2. Allocate prime, acquire, connect, apply, retrieve, and communicate time.\n3. Name each output.",
+             "For 120 minutes: 10 prime, 35 acquire, 25 connect, 25 apply, 15 retrieve, 10 brief.",
+             "Write the timed mission and output for each block.",
+             "Unaided performance and communication have protected time."),
+        step(4, "Prime", "Prime before intensive study",
+             "Preview structure and vocabulary before learning details.",
+             "Priming creates mental hooks and exposes missing prerequisites.",
+             "1. Scan headings, diagrams, objectives, summaries, and terms.\n2. Mark prerequisites.\n3. Predict a rough topic map.",
+             "Before cloud IAM, scan identity flows, trust boundaries, policy types, logs, and terms.",
+             "Record expected structure, important terms, and prerequisites.",
+             "You can describe the territory and its unknowns."),
+        step(5, "Prime", "Find the gist",
+             "Form a provisional answer to what the topic is fundamentally about.",
+             "A rough whole gives later details somewhere meaningful to attach.",
+             "1. Write a 5-10 minute plain-language summary.\n2. Sketch a concept map.\n3. Mark uncertain links.",
+             "EDR is continuous endpoint evidence plus analytics for detection, investigation, and response - not just antivirus.",
+             "Write the gist and rough relationship map.",
+             "A newcomer can follow it and uncertainties are visible."),
+        step(6, "Build & Connect", "Protect working memory",
+             "Remove distractions and unnecessary simultaneous demands.",
+             "Context switching spends the working memory needed for reasoning.",
+             "1. Close unrelated tabs and notifications.\n2. Keep the objective visible.\n3. Park tangents in one capture list.",
+             "For packet analysis, keep only the PCAP, protocol reference, and active question visible.",
+             "Record what you removed, the visible objective, and tangent parking place.",
+             "The workspace contains only the current mission."),
+        step(7, "Build & Connect", "Prioritise relationships",
+             "Learn dependencies, contrasts, failure modes, telemetry, and consequences.",
+             "Senior judgement comes from relationships, not isolated definitions.",
+             "1. Ask what, why, dependencies, similarities, differences, and failures.\n2. Identify telemetry and investigation paths.\n3. Connect mechanism to risk.",
+             "Relate PowerShell policy to process creation, script-block logging, AMSI, bypasses, and detection limits.",
+             "Record three relationships, one failure mode, and its telemetry.",
+             "You can explain how one change affects evidence, control, and risk."),
+        step(8, "Build & Connect", "Use relational notes",
+             "Capture a reasoning model rather than a transcript.",
+             "Relational notes support investigation and transfer; copied prose mainly supports recognition.",
+             "1. Use arrows, contrasts, and cause-effect.\n2. Map technology -> behaviour -> weakness -> attack -> telemetry -> detection -> response -> risk.\n3. Link claims to evidence.",
+             "Map an exposed service through exploitation, network evidence, detection, containment, and impact.",
+             "Create a relationship chain or concept map with evidence links.",
+             "The notes answer new questions without copying source order."),
+        step(9, "Build & Connect", "Choose learning order intelligently",
+             "Follow the order that resolves the problem, even when it differs from a course sequence.",
+             "Problem-led order exposes prerequisites when they become meaningful.",
+             "1. Start from the incident or capability.\n2. Trace backward to mechanisms and forward to decisions.\n3. Use source order only when it is the clearest dependency path.",
+             "A suspicious PowerShell event can lead through processes, Sysmon, AMSI, ATT&CK, detection, and hunting.",
+             "Record your chosen route, why it fits, and prerequisites found.",
+             "Every detour closes a named dependency."),
+        step(10, "Build & Connect", "Follow the confusion compass",
+             "Convert vague confusion into a precise missing relationship and testable hypothesis.",
+             "Specific confusion creates a diagnostic path.",
+             "1. Record expectation and observation.\n2. Name the missing link or assumption.\n3. State a hypothesis and evidence test.",
+             "Expected MFA to block login; observed token reuse. Hypothesis: a pre-policy session token remains valid.",
+             "Record expectation, observation, confusion, prerequisite, hypothesis, and test.",
+             "Evidence can now resolve the confusion."),
+        step(11, "Perform", "Match learning to real performance",
+             "Practise investigation, decisions, and communication under realistic constraints.",
+             "Recognition does not establish the ability to act on ambiguous evidence.",
+             "1. Progress from recall to investigation and decision.\n2. Use realistic logs, architecture, and trade-offs.\n3. Produce an inspectable artifact.",
+             "Investigate mixed endpoint/network evidence, state confidence, choose containment, and write an incident update.",
+             "Record the task, artifact, decision, confidence, and trade-offs.",
+             "The evidence resembles a workplace output, not a quiz answer."),
+        step(12, "Perform", "Attempt before getting help",
+             "Commit to an unaided attempt before opening documentation, AI, hints, or a solution.",
+             "The attempt exposes your actual model; immediate help can hide gaps.",
+             "1. Time-box and preserve first reasoning.\n2. Consult help only afterward.\n3. Compare reasoning and explain every important miss.",
+             "Write and predict a detection query before asking AI to improve it; test both and explain differences.",
+             "Record the unaided attempt, help used, differences, and causes of misses.",
+             "The original attempt remains visible beside the correction."),
+        step(13, "Retain & Communicate", "Test strategically",
+             "Retrieve and apply after enough delay for some forgetting.",
+             "Effortful retrieval strengthens access and exposes false familiarity.",
+             "1. Plan Day 2-3, 7, 21, and 30+ reviews.\n2. Increase from recall to scenario, investigation, explanation, and integration.\n3. Adapt intervals to evidence.",
+             "Day 3 rebuild the flow; Day 7 investigate logs; Day 21 brief risk; Day 30 connect a new attack path.",
+             "Record review dates, tasks, success evidence, and response to failure.",
+             "The plan tests increasing transfer, not the same flashcard."),
+        step(14, "Retain & Communicate", "Reproduce real conditions",
+             "Remove support and add uncertainty, time pressure, and real communication demands.",
+             "Competence must survive outside the generous conditions in which it was learned.",
+             "1. Remove notes, search, AI, hints, and unlimited time in stages.\n2. Add incomplete evidence and require confidence.\n3. Brief analyst, technical-leader, and executive audiences and recommend action.",
+             "In 30 minutes, triage partial telemetry, state unknowns, recommend containment, and brief SOC lead and executive.",
+             "Record conditions, evidence, uncertainty, three briefings, recommendation, and decision request.",
+             "You perform and communicate accurately under target-role conditions."),
+    ]
+
+    private static func step(_ number: Int, _ phase: String, _ title: String, _ what: String,
+                             _ why: String, _ how: String, _ example: String,
+                             _ prompt: String, _ done: String) -> LearningStepGuide {
+        LearningStepGuide(number: number, phase: phase, title: title, what: what, why: why,
+                          how: how, cyberExample: example, evidencePrompt: prompt, doneWhen: done)
+    }
 }
 
 enum ReviewRating: String, CaseIterable { case again, hard, good, strong }
@@ -13,34 +131,16 @@ struct LearningTopic: Codable, Identifiable, Equatable {
     var title: String
     var purpose: String
     var capability: String
-    var stage: LearningStage = .prime
-    var primeGist = ""
-    var coreNotes = ""
-    var connections = ""
-    var retrieval = ""
-    var application = ""
-    var analystExplanation = ""
-    var leaderExplanation = ""
-    var executiveExplanation = ""
-    var feedback = ""
+    var currentStep = 0
+    var stepEvidence = Array(repeating: "", count: 14)
+    var completed = false
+    var reviewEvidence = ""
     var createdAt = Date()
     var dueAt: Date?
     var intervalDays = 0
 
-    var canAdvance: Bool {
-        switch stage {
-        case .prime: return !primeGist.trimmed.isEmpty
-        case .learn: return !coreNotes.trimmed.isEmpty
-        case .connect: return !connections.trimmed.isEmpty
-        case .retrieve: return !retrieval.trimmed.isEmpty
-        case .apply: return !application.trimmed.isEmpty
-        case .explain:
-            return !analystExplanation.trimmed.isEmpty &&
-                !leaderExplanation.trimmed.isEmpty && !executiveExplanation.trimmed.isEmpty
-        case .feedback: return !feedback.trimmed.isEmpty
-        case .review: return false
-        }
-    }
+    var currentGuide: LearningStepGuide { LearningGuide.steps[min(max(currentStep, 0), 13)] }
+    var canAdvance: Bool { !completed && !stepEvidence[currentStep].trimmed.isEmpty }
 }
 
 enum LearningPolicy {
@@ -59,35 +159,26 @@ enum LearningPolicy {
     }
 
     static func learningDebt(_ topics: [LearningTopic], now: Date = Date()) -> Int {
-        topics.reduce(0) { result, topic in
-            var debt = 0
-            if topic.stage.index < LearningStage.retrieve.index { debt += 1 }
-            if topic.stage.index < LearningStage.apply.index { debt += 1 }
-            if topic.stage.index < LearningStage.explain.index { debt += 1 }
-            if topic.stage == .review, let due = topic.dueAt, due < now { debt += 2 }
-            return result + debt
+        topics.reduce(0) { debt, topic in
+            if topic.completed { return debt + ((topic.dueAt ?? .distantFuture) < now ? 2 : 0) }
+            return debt + [10, 11, 12, 13].filter { topic.currentStep <= $0 }.count
         }
     }
 
     static func nextMission(_ topics: [LearningTopic], now: Date = Date()) -> LearningTopic? {
         topics.sorted { lhs, rhs in
-            let left = priority(lhs, now: now)
-            let right = priority(rhs, now: now)
+            let left = priority(lhs, now: now), right = priority(rhs, now: now)
             if left != right { return left < right }
             return (lhs.dueAt ?? .distantFuture) < (rhs.dueAt ?? .distantFuture)
         }.first
     }
 
     private static func priority(_ topic: LearningTopic, now: Date) -> Int {
-        if topic.stage == .review, let due = topic.dueAt, due < now { return 0 }
-        return topic.stage == .review ? 2 : 1
+        if topic.completed, let due = topic.dueAt, due < now { return 0 }
+        return topic.completed ? 2 : 1
     }
 }
 
-private extension String {
+extension String {
     var trimmed: String { trimmingCharacters(in: .whitespacesAndNewlines) }
-}
-
-private extension LearningStage {
-    var index: Int { Self.allCases.firstIndex(of: self) ?? 0 }
 }

@@ -1,6 +1,5 @@
 namespace CyberLearningOS.Windows;
 
-public enum LearningStage { Prime, Learn, Connect, Retrieve, Apply, Explain, Feedback, Review }
 public enum ReviewRating { Again, Hard, Good, Strong }
 
 public sealed class LearningTopic
@@ -9,34 +8,17 @@ public sealed class LearningTopic
     public string Title { get; set; } = "";
     public string Purpose { get; set; } = "";
     public string Capability { get; set; } = "";
-    public LearningStage Stage { get; set; }
-    public string PrimeGist { get; set; } = "";
-    public string CoreNotes { get; set; } = "";
-    public string Connections { get; set; } = "";
-    public string Retrieval { get; set; } = "";
-    public string Application { get; set; } = "";
-    public string AnalystExplanation { get; set; } = "";
-    public string LeaderExplanation { get; set; } = "";
-    public string ExecutiveExplanation { get; set; } = "";
-    public string Feedback { get; set; } = "";
+    public int CurrentStep { get; set; }
+    public List<string> StepEvidence { get; set; } = Enumerable.Repeat("", LearningGuide.Steps.Count).ToList();
+    public bool Completed { get; set; }
+    public string ReviewEvidence { get; set; } = "";
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset? DueAt { get; set; }
     public int IntervalDays { get; set; }
 
-    public bool CanAdvance() => Stage switch
-    {
-        LearningStage.Prime => Present(PrimeGist),
-        LearningStage.Learn => Present(CoreNotes),
-        LearningStage.Connect => Present(Connections),
-        LearningStage.Retrieve => Present(Retrieval),
-        LearningStage.Apply => Present(Application),
-        LearningStage.Explain => Present(AnalystExplanation) && Present(LeaderExplanation) && Present(ExecutiveExplanation),
-        LearningStage.Feedback => Present(Feedback),
-        _ => false,
-    };
-
+    public LearningStepGuide CurrentGuide => LearningGuide.Steps[Math.Clamp(CurrentStep, 0, LearningGuide.Steps.Count - 1)];
+    public bool CanAdvance() => !Completed && !string.IsNullOrWhiteSpace(StepEvidence[CurrentStep]);
     public override string ToString() => Title;
-    private static bool Present(string value) => !string.IsNullOrWhiteSpace(value);
 }
 
 public static class LearningPolicy
@@ -59,15 +41,9 @@ public static class LearningPolicy
     public static int LearningDebt(IEnumerable<LearningTopic> topics, DateTimeOffset? now = null)
     {
         var current = now ?? DateTimeOffset.UtcNow;
-        return topics.Sum(topic =>
-        {
-            var debt = 0;
-            if (topic.Stage < LearningStage.Retrieve) debt++;
-            if (topic.Stage < LearningStage.Apply) debt++;
-            if (topic.Stage < LearningStage.Explain) debt++;
-            if (topic.Stage == LearningStage.Review && topic.DueAt is { } due && due < current) debt += 2;
-            return debt;
-        });
+        return topics.Sum(topic => topic.Completed
+            ? topic.DueAt is { } due && due < current ? 2 : 0
+            : new[] { 10, 11, 12, 13 }.Count(step => topic.CurrentStep <= step));
     }
 
     public static LearningTopic? NextMission(IEnumerable<LearningTopic> topics, DateTimeOffset? now = null)
@@ -80,6 +56,5 @@ public static class LearningPolicy
     }
 
     private static int Priority(LearningTopic topic, DateTimeOffset now) =>
-        topic.Stage == LearningStage.Review && topic.DueAt is { } due && due < now ? 0 :
-        topic.Stage == LearningStage.Review ? 2 : 1;
+        topic.Completed && topic.DueAt is { } due && due < now ? 0 : topic.Completed ? 2 : 1;
 }

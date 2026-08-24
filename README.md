@@ -8,21 +8,26 @@ The governing rule is simple:
 
 > Progress is earned through demonstrated understanding, not content consumption.
 
-## What V1 enforces
+## What V2 teaches and enforces
 
-Every topic passes through the same evidence loop:
+Every topic passes through the complete guided method:
 
 ```text
-Purpose -> Prime -> Learn -> Connect -> Retrieve -> Apply -> Explain -> Feedback -> Review
+ORIENT (1-3) -> PRIME (4-5) -> BUILD & CONNECT (6-10)
+-> PERFORM (11-12) -> RETAIN & COMMUNICATE (13-14) -> adaptive reviews
 ```
 
-- A topic cannot begin without a reason and an observable capability outcome.
-- Each stage requires learner-authored evidence before the next stage unlocks.
-- Explanation is required for analyst, technical-leader and executive audiences.
+- All fourteen named steps are present; none are collapsed into generic stages.
+- Every step explains what to do, why it matters, exactly how to do it, a cybersecurity
+  example, the evidence to record, and the completion condition.
+- The complete roadmap remains available as a reminder while working.
+- Every step requires learner-authored evidence before the next one unlocks.
+- Step 14 requires realistic conditions and analyst, technical-leader, and executive communication.
 - Adaptive review intervals respond to demonstrated performance.
-- Learning Debt exposes topics that were consumed but not retrieved, applied or explained.
+- Learning Debt exposes topics that have not reached performance, unaided attempt,
+  strategic testing, and real-condition evidence.
 - Today's Mission prioritises overdue retrieval and unfinished evidence loops.
-- All records stay on the device in V1. There are no accounts, analytics or network calls.
+- All records stay on the device. There are no accounts, analytics or network calls.
 
 ## Platforms
 
@@ -40,7 +45,7 @@ See [Android build instructions](#android), [iOS instructions](ios/README.md), a
 Verified prototype packages are published on the
 [GitHub Releases page](https://github.com/rock0ne/cyber-learning-os/releases).
 
-- **Android:** download the `Cyber-Learning-OS-0.1.0-debug.apk` file and install it
+- **Android:** download the latest `Cyber-Learning-OS-*-debug.apk` file and install it
   with `adb install -r <path-to-apk>`. This prototype APK uses Android's debug
   signing key and must not be mistaken for a production-store release.
 - **Windows:** download and extract the `win-x64.zip` archive, then run
@@ -77,7 +82,7 @@ cybersecurity learning and senior professional judgement.
 
 ## Scope and roadmap
 
-V1 proves the offline evidence loop. It intentionally excludes AI tutoring, cloud
+V2 proves the offline guided fourteen-step method. It intentionally excludes AI tutoring, cloud
 sync, subscriptions, public profiles and employer evidence. Those require separate
 privacy, identity, security and assessment decisions. See
 [the product contract](docs/PRODUCT-CONTRACT.md).

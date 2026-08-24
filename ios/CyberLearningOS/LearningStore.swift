@@ -22,20 +22,22 @@ final class LearningStore: ObservableObject {
 
     func advance() -> Bool {
         guard let index = selectedIndex, topics[index].canAdvance else { return false }
-        if topics[index].stage == .feedback {
+        if topics[index].currentStep == LearningGuide.steps.count - 1 {
+            topics[index].completed = true
             LearningPolicy.schedule(&topics[index], rating: .hard)
-            topics[index].stage = .review
-        } else if let next = LearningStage.allCases.drop(while: { $0 != topics[index].stage }).dropFirst().first {
-            topics[index].stage = next
+        } else {
+            topics[index].currentStep += 1
         }
         save()
         return true
     }
 
-    func rate(_ rating: ReviewRating) {
-        guard let index = selectedIndex else { return }
+    func rate(_ rating: ReviewRating) -> Bool {
+        guard let index = selectedIndex, !topics[index].reviewEvidence.trimmed.isEmpty else { return false }
         LearningPolicy.schedule(&topics[index], rating: rating)
+        topics[index].reviewEvidence = ""
         save()
+        return true
     }
 
     func save() {
@@ -53,6 +55,6 @@ final class LearningStore: ObservableObject {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let folder = base.appendingPathComponent("CyberLearningOS", isDirectory: true)
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        return folder.appendingPathComponent("topics.json")
+        return folder.appendingPathComponent("topics-v2.json")
     }
 }

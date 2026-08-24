@@ -29,11 +29,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var metrics: TextView
     private lateinit var mission: TextView
     private lateinit var selector: Spinner
-    private lateinit var stage: TextView
-    private lateinit var prompt: TextView
-    private lateinit var fieldOne: EditText
-    private lateinit var fieldTwo: EditText
-    private lateinit var fieldThree: EditText
+    private lateinit var editor: LinearLayout
+    private lateinit var stepMeta: TextView
+    private lateinit var stepTitle: TextView
+    private lateinit var whatText: TextView
+    private lateinit var whyText: TextView
+    private lateinit var howText: TextView
+    private lateinit var exampleText: TextView
+    private lateinit var evidenceLabel: TextView
+    private lateinit var doneText: TextView
+    private lateinit var evidenceField: EditText
     private lateinit var advance: Button
     private lateinit var ratings: LinearLayout
 
@@ -50,16 +55,10 @@ class MainActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.rgb(7, 17, 31))
         }
-        root.addView(TextView(this).apply {
-            text = "CYBER LEARNING OS"
-            textSize = 13f
-            setTextColor(Color.rgb(61, 229, 194))
+        root.addView(label("CYBER LEARNING OS", 13f, ACCENT).apply {
             setPadding(dp(20), dp(22), dp(20), dp(2))
         })
-        root.addView(TextView(this).apply {
-            text = "Demonstrate understanding.\nDo not count consumption."
-            textSize = 25f
-            setTextColor(Color.WHITE)
+        root.addView(label("The complete 14-step learning guide", 25f, Color.WHITE).apply {
             setPadding(dp(20), 0, dp(20), dp(14))
         })
 
@@ -71,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         scroll.addView(body)
         root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
 
-        metrics = label("No learning debt yet", 14f, Color.rgb(255, 198, 109))
+        metrics = label("", 14f, Color.rgb(255, 198, 109))
         body.addView(metrics)
         mission = panelText("")
         body.addView(mission, margin(top = 10, bottom = 14))
@@ -80,6 +79,11 @@ class MainActivity : AppCompatActivity() {
             text = "+ Start a purposeful topic"
             setOnClickListener { showNewTopicDialog() }
         })
+        body.addView(Button(this).apply {
+            text = "View all 14 steps"
+            setOnClickListener { showRoadmap() }
+        }, margin(top = 8))
+
         selector = Spinner(this)
         body.addView(selector, margin(top = 12, bottom = 12))
         selector.onItemSelectedListener = SimpleItemSelectedListener { position ->
@@ -89,17 +93,31 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        stage = label("", 14f, Color.rgb(61, 229, 194))
-        body.addView(stage)
-        prompt = label("", 19f, Color.WHITE)
-        body.addView(prompt, margin(top = 4, bottom = 8))
+        editor = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Color.rgb(16, 30, 48))
+            setPadding(dp(16))
+        }
+        body.addView(editor, margin(bottom = 18))
 
-        fieldOne = evidenceField()
-        fieldTwo = evidenceField()
-        fieldThree = evidenceField()
-        body.addView(fieldOne)
-        body.addView(fieldTwo, margin(top = 8))
-        body.addView(fieldThree, margin(top = 8))
+        stepMeta = label("", 13f, ACCENT)
+        stepTitle = label("", 24f, Color.WHITE)
+        whatText = guideBlock("WHAT TO DO")
+        whyText = guideBlock("WHY IT MATTERS")
+        howText = guideBlock("HOW TO ACHIEVE IT")
+        exampleText = guideBlock("CYBERSECURITY EXAMPLE")
+        evidenceLabel = label("YOUR EVIDENCE", 12f, ACCENT)
+        doneText = guideBlock("YOU ARE READY TO CONTINUE WHEN")
+        editor.addView(stepMeta)
+        editor.addView(stepTitle, margin(top = 3, bottom = 12))
+        editor.addView(whatText)
+        editor.addView(whyText, margin(top = 10))
+        editor.addView(howText, margin(top = 10))
+        editor.addView(exampleText, margin(top = 10, bottom = 14))
+        editor.addView(evidenceLabel)
+        evidenceField = evidenceField()
+        editor.addView(evidenceField, margin(top = 5))
+        editor.addView(doneText, margin(top = 10))
 
         val actions = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         actions.addView(Button(this).apply {
@@ -107,15 +125,15 @@ class MainActivity : AppCompatActivity() {
             setOnClickListener { saveEvidence(showConfirmation = true) }
         }, LinearLayout.LayoutParams(0, -2, 1f))
         advance = Button(this).apply {
-            text = "Save & continue"
+            text = "Complete step"
             setOnClickListener { advance() }
         }
         actions.addView(advance, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(8) })
-        body.addView(actions, margin(top = 12))
+        editor.addView(actions, margin(top = 12))
 
         ratings = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(label("How well could you reconstruct and use it?", 16f, Color.WHITE))
+            addView(label("After unaided retrieval, how well could you reconstruct and use it?", 16f, Color.WHITE))
             addView(LinearLayout(this@MainActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
                 ReviewRating.entries.forEach { rating ->
@@ -126,102 +144,83 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
-        body.addView(ratings, margin(top = 12, bottom = 18))
+        editor.addView(ratings, margin(top = 12))
 
         body.addView(TextView(this).apply {
-            text = "Method inspiration: Dr Justin Sung — My Exact 14-Step Guide To Learn Anything Faster"
+            text = "Method inspiration and credit: Dr Justin Sung - My Exact 14-Step Guide To Learn Anything Faster"
             textSize = 12f
             setTextColor(Color.rgb(175, 196, 221))
             setPadding(0, dp(18), 0, dp(28))
-            setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(SOURCE_URL)))
-            }
+            setOnClickListener { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LearningGuide.sourceUrl))) }
         })
         return root
     }
 
     private fun refresh() {
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item,
-            topics.map { it.title }.ifEmpty { listOf("No topics yet") })
-        selector.adapter = adapter
+        selector.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            topics.map { it.title }.ifEmpty { listOf("No topics yet") },
+        )
         selectedIndex = selectedIndex.coerceIn(0, (topics.size - 1).coerceAtLeast(0))
         if (topics.isNotEmpty()) selector.setSelection(selectedIndex)
 
         val debt = LearningPolicy.learningDebt(topics)
-        val due = topics.count { it.stage == LearningStage.REVIEW && it.dueAt in 1 until System.currentTimeMillis() }
+        val due = topics.count { it.completed && it.dueAt in 1 until System.currentTimeMillis() }
         metrics.text = "Learning Debt: ${debtLabel(debt)}  •  $due due  •  ${topics.size} topics"
         val next = LearningPolicy.nextMission(topics)
         mission.text = if (next == null) {
-            "TODAY'S MISSION\nCreate one topic with a clear capability outcome."
+            "TODAY'S MISSION\nCreate a topic, define an observable outcome, and begin Step 1."
+        } else if (next.completed) {
+            "TODAY'S MISSION\nRETRIEVAL REVIEW  •  ${next.title}\nDue ${DateFormat.getDateInstance().format(Date(next.dueAt))}\nReconstruct before consulting notes or AI."
         } else {
-            val timing = if (next.stage == LearningStage.REVIEW && next.dueAt > 0)
-                "Due ${DateFormat.getDateInstance().format(Date(next.dueAt))}" else "Continue the evidence loop"
-            "TODAY'S MISSION\n${next.stage.label.uppercase()}  •  ${next.title}\n$timing\nCapability: ${next.capability}"
+            val guide = next.currentGuide()
+            "TODAY'S MISSION\nSTEP ${guide.number} OF 14  •  ${next.title}\n${guide.title}\nCapability: ${next.capability}"
         }
         refreshEditor()
     }
 
     private fun refreshEditor() {
         val topic = topics.getOrNull(selectedIndex)
-        listOf(stage, prompt, fieldOne, fieldTwo, fieldThree, advance, ratings).forEach {
-            it.visibility = if (topic == null) View.GONE else View.VISIBLE
-        }
+        editor.visibility = if (topic == null) View.GONE else View.VISIBLE
         if (topic == null) return
-        stage.text = "${topic.stage.label.uppercase()}  •  ${topic.title}"
-        prompt.text = promptFor(topic)
-        fieldTwo.visibility = View.GONE
-        fieldThree.visibility = View.GONE
-        ratings.visibility = if (topic.stage == LearningStage.REVIEW) View.VISIBLE else View.GONE
-        advance.visibility = if (topic.stage == LearningStage.REVIEW) View.GONE else View.VISIBLE
-        fieldOne.visibility = if (topic.stage == LearningStage.REVIEW) View.GONE else View.VISIBLE
 
-        when (topic.stage) {
-            LearningStage.PRIME -> setFields("Write the gist before detailed study", topic.primeGist)
-            LearningStage.LEARN -> setFields("Selective notes: mechanisms and relationships", topic.coreNotes)
-            LearningStage.CONNECT -> setFields("What does this connect to or change?", topic.connections)
-            LearningStage.RETRIEVE -> setFields("Close resources. Reconstruct from memory.", topic.retrieval)
-            LearningStage.APPLY -> setFields("Lab, logs, scenario, investigation or decision evidence", topic.application)
-            LearningStage.EXPLAIN -> {
-                setFields("Analyst: mechanism, telemetry, reasoning", topic.analystExplanation)
-                fieldTwo.visibility = View.VISIBLE
-                fieldThree.visibility = View.VISIBLE
-                fieldTwo.hint = "Technical leader: significance, confidence, action"
-                fieldTwo.setText(topic.leaderExplanation)
-                fieldThree.hint = "Executive: exposure, consequence, decision required"
-                fieldThree.setText(topic.executiveExplanation)
-            }
-            LearningStage.FEEDBACK -> setFields("What was right, what was missed, and why?", topic.feedback)
-            LearningStage.REVIEW -> Unit
+        if (topic.completed) {
+            stepMeta.text = "14 STEPS COMPLETE  •  RETRIEVAL CYCLE"
+            stepTitle.text = topic.title
+            whatText.text = section("WHAT TO DO", "Close your resources and reconstruct the topic before rating yourself.")
+            whyText.text = section("WHY IT MATTERS", "The review rating must describe demonstrated retrieval, not familiarity.")
+            howText.text = section("HOW TO ACHIEVE IT", "1. Reproduce the model from memory.\n2. Apply it to a fresh case.\n3. Compare with evidence only after committing your answer.")
+            exampleText.text = section("CYBERSECURITY EXAMPLE", "Rebuild the investigation path against different logs and defend the action you would take.")
+            evidenceLabel.text = "RETRIEVAL EVIDENCE"
+            evidenceField.hint = "What did you retrieve, apply, miss, and correct?"
+            evidenceField.setText(topic.reviewEvidence)
+            doneText.text = section("RATE ONLY WHEN", "You have recorded an unaided retrieval or application attempt.")
+            advance.visibility = View.GONE
+            ratings.visibility = View.VISIBLE
+            return
         }
-    }
 
-    private fun promptFor(topic: LearningTopic): String = when (topic.stage) {
-        LearningStage.PRIME -> "What is this fundamentally about?"
-        LearningStage.LEARN -> "Acquire selectively; do not transcribe."
-        LearningStage.CONNECT -> "Build relationships, not folders."
-        LearningStage.RETRIEVE -> "Can you reconstruct it without support?"
-        LearningStage.APPLY -> "Use it under realistic conditions."
-        LearningStage.EXPLAIN -> "Preserve accuracy across three audiences."
-        LearningStage.FEEDBACK -> "Compare your reasoning with the evidence."
-        LearningStage.REVIEW -> "Retrieve again before rating yourself."
+        val guide = topic.currentGuide()
+        stepMeta.text = "STEP ${guide.number} OF 14  •  PHASE ${phaseNumber(guide.phase)} - ${guide.phase.uppercase()}"
+        stepTitle.text = guide.title
+        whatText.text = section("WHAT TO DO", guide.what)
+        whyText.text = section("WHY IT MATTERS", guide.why)
+        howText.text = section("HOW TO ACHIEVE IT", guide.how.mapIndexed { index, item -> "${index + 1}. $item" }.joinToString("\n"))
+        exampleText.text = section("CYBERSECURITY EXAMPLE", guide.cyberExample)
+        evidenceLabel.text = "YOUR EVIDENCE  •  ${guide.evidencePrompt}"
+        evidenceField.hint = guide.evidencePrompt
+        evidenceField.setText(topic.currentEvidence())
+        doneText.text = section("YOU ARE READY TO CONTINUE WHEN", guide.doneWhen)
+        advance.text = if (guide.number == 14) "Complete 14-step cycle" else "Complete step ${guide.number}"
+        advance.visibility = View.VISIBLE
+        ratings.visibility = View.GONE
     }
 
     private fun saveEvidence(showConfirmation: Boolean) {
         val topic = topics.getOrNull(selectedIndex) ?: return
-        when (topic.stage) {
-            LearningStage.PRIME -> topic.primeGist = fieldOne.text.toString().trim()
-            LearningStage.LEARN -> topic.coreNotes = fieldOne.text.toString().trim()
-            LearningStage.CONNECT -> topic.connections = fieldOne.text.toString().trim()
-            LearningStage.RETRIEVE -> topic.retrieval = fieldOne.text.toString().trim()
-            LearningStage.APPLY -> topic.application = fieldOne.text.toString().trim()
-            LearningStage.EXPLAIN -> {
-                topic.analystExplanation = fieldOne.text.toString().trim()
-                topic.leaderExplanation = fieldTwo.text.toString().trim()
-                topic.executiveExplanation = fieldThree.text.toString().trim()
-            }
-            LearningStage.FEEDBACK -> topic.feedback = fieldOne.text.toString().trim()
-            LearningStage.REVIEW -> Unit
-        }
+        if (topic.completed) topic.reviewEvidence = evidenceField.text.toString().trim()
+        else topic.setCurrentEvidence(evidenceField.text.toString().trim())
         store.save(topics)
         if (showConfirmation) Toast.makeText(this, "Evidence saved locally", Toast.LENGTH_SHORT).show()
     }
@@ -230,20 +229,26 @@ class MainActivity : AppCompatActivity() {
         val topic = topics.getOrNull(selectedIndex) ?: return
         saveEvidence(showConfirmation = false)
         if (!topic.canAdvance()) {
-            Toast.makeText(this, "Demonstrate this stage before continuing", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Record the required evidence before continuing", Toast.LENGTH_LONG).show()
             return
         }
-        topic.stage = if (topic.stage == LearningStage.FEEDBACK) {
+        if (topic.currentStep == LearningGuide.steps.lastIndex) {
+            topic.completed = true
             LearningPolicy.schedule(topic, ReviewRating.HARD)
-            LearningStage.REVIEW
-        } else LearningStage.entries[topic.stage.ordinal + 1]
+        } else topic.currentStep += 1
         store.save(topics)
         refresh()
     }
 
     private fun rate(rating: ReviewRating) {
         val topic = topics.getOrNull(selectedIndex) ?: return
+        saveEvidence(showConfirmation = false)
+        if (topic.reviewEvidence.isBlank()) {
+            Toast.makeText(this, "Record the unaided retrieval before rating it", Toast.LENGTH_LONG).show()
+            return
+        }
         LearningPolicy.schedule(topic, rating)
+        topic.reviewEvidence = ""
         store.save(topics)
         Toast.makeText(this, "Next review in ${topic.intervalDays} day(s)", Toast.LENGTH_SHORT).show()
         refresh()
@@ -256,18 +261,18 @@ class MainActivity : AppCompatActivity() {
         }
         val title = evidenceField("Topic")
         val purpose = evidenceField("Why am I learning this?")
-        val capability = evidenceField("Afterward, what can I do?")
+        val capability = evidenceField("What observable task will I be able to perform?")
         box.addView(title); box.addView(purpose); box.addView(capability)
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Purpose gate")
+            .setTitle("Start the 14-step method")
             .setView(box)
             .setNegativeButton("Cancel", null)
-            .setPositiveButton("Start", null)
+            .setPositiveButton("Start at Step 1", null)
             .create()
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 if (listOf(title, purpose, capability).any { it.text.isBlank() }) {
-                    Toast.makeText(this, "Topic, purpose and capability are required", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Topic, purpose and observable capability are required", Toast.LENGTH_LONG).show()
                 } else {
                     topics += LearningTopic(
                         title = title.text.toString().trim(),
@@ -284,12 +289,23 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun setFields(hint: String, value: String) {
-        fieldOne.hint = hint
-        fieldOne.setText(value)
-        fieldTwo.setText("")
-        fieldThree.setText("")
+    private fun showRoadmap() {
+        val text = LearningGuide.steps.joinToString("\n\n") { step ->
+            "${step.number}. ${step.title}\n${step.phase} - ${step.what}"
+        } + "\n\nSource inspiration: Dr Justin Sung. Tap About/source on the main screen for the cited video."
+        AlertDialog.Builder(this)
+            .setTitle("The complete 14-step roadmap")
+            .setMessage(text)
+            .setPositiveButton("Close", null)
+            .show()
     }
+
+    private fun guideBlock(name: String) = label(name, 14f, Color.WHITE).apply {
+        setBackgroundColor(Color.rgb(23, 40, 61))
+        setPadding(dp(12))
+    }
+
+    private fun section(name: String, value: String) = "$name\n$value"
 
     private fun evidenceField(hint: String = ""): EditText = EditText(this).apply {
         this.hint = hint
@@ -297,7 +313,7 @@ class MainActivity : AppCompatActivity() {
         setTextColor(Color.WHITE)
         setBackgroundColor(Color.rgb(23, 40, 61))
         inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-        minLines = 3
+        minLines = 5
         gravity = Gravity.TOP
         setPadding(dp(12))
     }
@@ -314,6 +330,14 @@ class MainActivity : AppCompatActivity() {
         topMargin = dp(top); bottomMargin = dp(bottom)
     }
 
+    private fun phaseNumber(phase: String) = when (phase) {
+        "Orient" -> 1
+        "Prime" -> 2
+        "Build & Connect" -> 3
+        "Perform" -> 4
+        else -> 5
+    }
+
     private fun debtLabel(value: Int) = when {
         value == 0 -> "LOW (0)"
         value < 6 -> "MODERATE ($value)"
@@ -323,6 +347,6 @@ class MainActivity : AppCompatActivity() {
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 
     companion object {
-        const val SOURCE_URL = "https://youtu.be/CQQTwvDb5xg"
+        val ACCENT: Int = Color.rgb(61, 229, 194)
     }
 }
